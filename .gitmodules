@@ -1,0 +1,3 @@
+[submodule "lib/php-amqplib"]
+	path = lib/php-amqplib
+	url = git@github.com:overnin/ttc_poc
