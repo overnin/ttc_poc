@@ -15,9 +15,9 @@
 		include "test_rabbitmq.php";
 		try {
 			if (IsRabbitMQRunning()) { 
-				echo "yes";
+				echo "RUNNING";
 			} else {
-				echo "no";
+				echo "not running";
 			}
 		} catch (Exception $e) {
 			echo "no";
@@ -26,7 +26,18 @@
 		}
 	?>
 	</p>
-	<p>Supervisord...(still to be implemented)			
+	<p>Supervisord...
+	<?php
+		include "supervisor_xmlrpc.php";
+		try {
+			$arr = getState();
+			echo $arr['statename'];
+		} catch (Exception $e) {
+			echo "no";
+			echo '<br>Caught exception: ',  $e->getMessage();
+			echo "<br>Trace:\n" . $e->getTraceAsString();
+		}
+	?>
 	<a href="http://localhost:9010/">Still can visit the supervisord</a>
 	</p>
 	
