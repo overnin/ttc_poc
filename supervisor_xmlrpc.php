@@ -14,12 +14,13 @@ function getState(){
 	
 	if(!$r->faultCode())
 	{
-		return php_xmlrpc_decode($r->value());
+		$arr = php_xmlrpc_decode($r->value());
+		return $arr['statename'];
 	}
 	else
 	{
 		return "An error occurred, Code: " . htmlspecialchars($r->faultCode())
-			. " Reason: '" . htmlspecialchars($r->faultString()) . "'</pre><br/>";
+			. " Reason: '" . htmlspecialchars($r->faultString()) . "'";
 	}
 }
 

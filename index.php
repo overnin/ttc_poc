@@ -29,9 +29,8 @@
 	<p>Supervisord...
 	<?php
 		include "supervisor_xmlrpc.php";
-		try {
-			$arr = getState();
-			echo $arr['statename'];
+		try {	
+			echo getState();
 		} catch (Exception $e) {
 			echo "no";
 			echo '<br>Caught exception: ',  $e->getMessage();
@@ -41,7 +40,7 @@
 	<a href="http://localhost:9010/">Still can visit the supervisord</a>
 	</p>
 	
-	<h3>Workers</h3>
+	<h3>Communication</h3>
 	<form name="sendMessageToEcho" action="send_message_to_echo_worker.php" method="get">
 	Send Messsage via RabbitMQ to a worker or transporter. Content: <input type="text" name="message" /> 
 	To (routing key):<input type="text" name="to"/>
@@ -53,6 +52,7 @@
 	From (phone number):<input type="text" name="from"/>
 	<input type="submit" value="Submit" />
 	</form>
+	<h3>TTC Generic Program Worker</h3>
 </body>
 
 </html>
