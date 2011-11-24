@@ -53,6 +53,10 @@
 	<input type="submit" value="Submit" />
 	</form>
 	<h3>TTC Generic Program Worker</h3>
+	<form name="createTTCWorker" action="create_ttc_worker.php" method="get">
+	Start a new TTC worker. Enter json description of your worker <input type="text" name="description"/>
+	<input type="submit" value="Submit"/>
+	</form>
 </body>
 
 </html>
