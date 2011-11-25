@@ -45,15 +45,63 @@ function startWorker($config){
 				'startsecs' => new xmlrpcval("0")
 			),"struct")
 		);
-	//echo "array size:". count($val)."<br/>";
-	//for ($i = 0; $i < count($val); $i++)
-	//	{
-	//		$v = $val[$i];
-	//		print "Element $i of the array is ".$v->kindOf()."<br/>";
-	//	}
 	
 	
 	$f=new xmlrpcmsg('twiddler.addProgramToGroup', $val);
+	
+	$r=&$c->send($f);
+	
+	if(!$r->faultCode())
+	{
+		echo php_xmlrpc_decode($r->value());
+	}
+	else
+	{
+		return "An error occurred, Code: " . htmlspecialchars($r->faultCode())
+			. " Reason: '" . htmlspecialchars($r->faultString()) . "'";
+	}
+}
+
+function removeWorker($name){
+	require_once('lib/xmlrpc-3.0.0.beta/xmlrpc.inc');
+	
+	$c=new xmlrpc_client("/RPC2", "localhost",9010);
+	
+	//$c->setDebug(1);
+	
+	$val = array(
+		new xmlrpcval('echo_worker'),
+		new xmlrpcval($name)
+		);
+	
+	
+	$f=new xmlrpcmsg('twiddler.removeProcessFromGroup', $val);
+	
+	$r=&$c->send($f);
+	
+	if(!$r->faultCode())
+	{
+		echo php_xmlrpc_decode($r->value());
+	}
+	else
+	{
+		return "An error occurred, Code: " . htmlspecialchars($r->faultCode())
+			. " Reason: '" . htmlspecialchars($r->faultString()) . "'";
+	}
+}
+
+function stopWorker($name){
+	require_once('lib/xmlrpc-3.0.0.beta/xmlrpc.inc');
+	
+	$c=new xmlrpc_client("/RPC2", "localhost",9010);
+	
+	//$c->setDebug(1);
+	
+	$val = array(
+		new xmlrpcval('echo_worker:'.$name)
+		);
+	
+	$f=new xmlrpcmsg('supervisor.stopProcess', $val);
 	
 	$r=&$c->send($f);
 	

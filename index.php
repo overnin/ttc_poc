@@ -57,6 +57,10 @@
 	Start a new TTC worker. Enter json description of your worker <input type="text" name="description"/>
 	<input type="submit" value="Submit"/>
 	</form>
+	<form name="removeTTCWorker" action="remove_ttc_worker.php" method="get">
+	Remove TTC worker. Enter worker name<input type="text" name="name"/>
+	<input type="submit" value="Submit"/>
+	</form>
 </body>
 
 </html>

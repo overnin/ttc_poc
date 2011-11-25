@@ -62,20 +62,34 @@ function sendMessageTo($msg, $to) {
 	$PASSWORD ='guest';
 	$VHOST = "/develop";
 	
+	$arr = array("content" => "mon message");
 	//vumi use the JSON fromat for his messages
-	$arr = array("content" => $msg, 
-		"message_version" => '20110921',
-		"message_type" => '', 
-		"timestamp" =>"", 
-		"message_id" => "",
-		"to_addr" => "0.0.0.0:9020",
-		"from_addr" => "",
-		"in_reply_to" => "",
-		"session_event"=> null,
-		"transport_name" =>"",
-		"transport_type" => "",
-		"transport_metadata" => "",
-		"helper_metadata" => "");
+	if (strpos($to,"inbound")) {
+		$arr = array("content" => $msg, 
+			"message_version" => '20110921',
+			"message_type" => '', 
+			"timestamp" =>"", 
+			"message_id" => "",
+			"to_addr" => "0.0.0.0:9020",
+			"from_addr" => "",
+			"in_reply_to" => "",
+			"session_event"=> null,
+			"transport_name" =>"",
+			"transport_type" => "",
+			"transport_metadata" => "",
+			"helper_metadata" => "");
+	} elseif (strpos($to,"event")) {
+		$arr = array(
+			"message_version"=>"20110921",
+			"message_type"=>"event",
+			"user_message_id"=>"",
+			"event_id"=>"",
+			"event_type"=>"ack",
+			"timestamp"=>"",
+			"sent_message_id"=>"");	
+	} /*else {
+		return ("no message send, not type matching");	
+	}*/
 	
 	$msg_body = json_encode($arr);
 		
@@ -101,7 +115,9 @@ function sendMessageTo($msg, $to) {
 	$ch->close();
 	echo "<br>Closing connection\n";
 	$conn->close();
-	return (true);
+	return ($msg_body);
 }
+
+
 
 ?>
