@@ -16,7 +16,7 @@ function IsRabbitMQRunning(){
 	
 //	try
 //	{
-	    //echo "Creating connection\n";
+//echo "Creating connection\n";
 	    $conn = new AMQPConnection($BROKER_HOST, $BROKER_PORT,
 				       $USER,
 				       $PASSWORD);
@@ -51,7 +51,6 @@ function sendMessageTo($msg, $to) {
 		
 	require_once('lib/php-amqplib/amqp.inc');
 	
-	echo "sending '".$msg."' to '".$to."'";
 	
 	$EXCHANGE = 'vumi';
 	$BROKER_HOST   = 'localhost';
@@ -62,7 +61,6 @@ function sendMessageTo($msg, $to) {
 	$PASSWORD ='guest';
 	$VHOST = "/develop";
 	
-	$arr = array("content" => "mon message");
 	//vumi use the JSON fromat for his messages
 	if (strpos($to,"inbound")) {
 		$arr = array("content" => $msg, 
@@ -87,12 +85,15 @@ function sendMessageTo($msg, $to) {
 			"event_type"=>"ack",
 			"timestamp"=>"",
 			"sent_message_id"=>"");	
-	} /*else {
-		return ("no message send, not type matching");	
-	}*/
+	} else {
+		$arr = json_decode($msg);
+		//return ("no message send, not type matching");	
+	}
 	
 	$msg_body = json_encode($arr);
-		
+	
+	echo "sending '".$msg_body."' to '".$to."'";
+
 	echo "starting...";
 	
 	$conn = new AMQPConnection($BROKER_HOST, $BROKER_PORT,
