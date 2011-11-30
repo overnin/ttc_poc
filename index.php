@@ -11,6 +11,7 @@
 	<script src="lib/dform/jquery.dform-0.1.4.min.js"></script>
 	<script src="js/ttc-generic-program.js"></script>
 	<script type="text/javascript" src="lib/form2js/src/form2js.js"></script>
+	<script type="text/javascript" src="lib/serializeObject/jquery.serializeObject.js"></script>
 	<script type="text/javascript" src="lib/array2json/array2json.js"></script>
 	<script>
 	$(function() {
@@ -114,43 +115,17 @@
 		$('#xml').text(xml); 
 	});
 	
-	$.fn.serializeObject = function()
-	{
-	   var o = {};
-	   var a = this.serializeArray();
-	   $.each(a, function() {
-	       if (o[this.name]) {
-		   if (!o[this.name].push) {
-		       o[this.name] = [o[this.name]];
-		   }
-		   o[this.name].push(this.value || '');
-	       } else {
-		   o[this.name] = this.value || '';
-	       }
-	   });
-	   return o;
-	};
-	
 	function test(){
 		
-		var formData = $("#generic-worker-form-dynamic").serializeObject();
+		var formData = form2js('generic-worker-form-dynamic', '.', true);
+		//alert();
+		var indata= "description="+JSON.stringify(formData, null, '\t');
 		
-		/*
-		var formData = form2js('generic-worker-form-dynamic', '.', true,
-			function(node)
-			{
-				//if (node.getAttribute('name'))
-				if (typeof node.getAttribute == 'function')
-					alert("something on id:"+node.id+" or name:"+node.getAttribute('name')+" or class:"+node.getAttribute('class'));
-				//else
-				//	alert("not attibuted node");
-				if (node.id && node.id.match(/callbackTest/))
-				{
-					//alert("got specificname");
-					return { name: node.id, value: node.innerHTML };
-				}
-			});*/
-		$("#testArea").text(array2json(formData));
+		$("#testArea").text(indata);
+		
+		$.get('create_ttc_worker.php',indata, function(data) {
+				$("#result").html(data);
+		});
 	}
 	</script>
 	
@@ -228,11 +203,20 @@
 			<code id="xml"></code>
 		</div>
 	</div>
+	<h3>Test form!</h3>
+	<form id="my-test-form" action="javascript:test()">
+		<label for="nameFirst">First name:</label>
+		<input id="nameFirst" type="text" name="person.name.first"/>
+		<input type="submit" />
+	</form>
 	<h3>TTC generic form dynamic!</h3>
 		<form id="generic-worker-form-dynamic"></form>
 	
+	<p>data to be send</p>
 	<pre><code id="testArea">
 	</code></pre>
+	<p>result:</p>
+	<div id="result"></div>
 </body>
 
 </html>

@@ -7,3 +7,9 @@
 [submodule "lib/form2js"]
 	path = lib/form2js
 	url = git://github.com/maxatwork/form2js.git
+[submodule "lib/json2"]
+	path = lib/json2
+	url = https://github.com/douglascrockford/JSON-js
+[submodule "lib/serializeObject"]
+	path = lib/serializeObject
+	url = https://github.com/rtsinani/jquery.serializeObject.git
