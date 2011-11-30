@@ -1,3 +1,9 @@
 [submodule "lib/php-amqplib"]
 	path = lib/php-amqplib
 	url = git://github.com/tnc/php-amqplib.git
+[submodule "lib/dform"]
+	path = lib/dform
+	url = git://github.com/daffl/jquery.dform.git
+[submodule "lib/form2js"]
+	path = lib/form2js
+	url = git://github.com/maxatwork/form2js.git

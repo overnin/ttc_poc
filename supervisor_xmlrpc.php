@@ -35,14 +35,18 @@ function startWorker($config){
 	print $worker_config->program->name;
 	
 	$val = array(
-		new xmlrpcval('echo_worker'),
+		new xmlrpcval('yo_transport'),
 		new xmlrpcval($worker_config->program->name), 
 		new xmlrpcval (
 			array( 
-				'command' => new xmlrpcval("twistd -n start_worker --vhost=/develop --worker-class=vumi.workers.ttc.TtcGenericWorker --set-option=transport_name:".$worker_config->program->name),
+				'command' => new xmlrpcval("twistd --pidfile=./tmp/pids/%(program_name)s_%(process_num)s.pid -n start_worker --vhost=/develop --worker-class=vumi.workers.ttc.TtcGenericWorker2 --set-option=transport_name:".$worker_config->program->name),
+				//'command' => new xmlrpcval("ls -l"),
 				'autostart' => new xmlrpcval("true"),
-				'autorestart' => new xmlrpcval("false"),
-				'startsecs' => new xmlrpcval("0")
+				'autorestart' => new xmlrpcval("true"),
+				'startsecs' => new xmlrpcval("0"),
+				'numprocs' => new xmlrpcval("1"),
+				'stdout_logfile' => new xmlrpcval("./logs/%(program_name)s_%(process_num)s.log"),
+				'stderr_logfile' => new xmlrpcval("./logs/%(program_name)s_%(process_num)s.err")
 			),"struct")
 		);
 	

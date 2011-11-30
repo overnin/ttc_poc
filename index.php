@@ -5,6 +5,155 @@
 
 <head>
 	<title>TTC Prototype</title>
+	<link href="lib/jqueryui/css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="stylesheet">
+	<script src="lib/jqueryui/js/jquery-1.6.2.min.js"></script>
+	<script src="lib/jqueryui/js/jquery-ui-1.8.16.custom.min.js"></script>
+	<script src="lib/dform/jquery.dform-0.1.4.min.js"></script>
+	<script src="js/ttc-generic-program.js"></script>
+	<script type="text/javascript" src="lib/form2js/src/form2js.js"></script>
+	<script type="text/javascript" src="lib/array2json/array2json.js"></script>
+	<script>
+	$(function() {
+		//create tab
+		$("#tabs").tabs();
+		
+		$.dform.addType("add", function(option) {
+			return $("<button type='button'>").dformAttr(option).html("add something")		
+		});
+		
+		function isArray(obj) {
+        	//returns true is it is an array
+        		if (obj.constructor.toString().indexOf("Array") == -1)
+        			return false;
+        		else
+        			return true;
+        	};	
+		
+		
+		
+		//create form
+		
+		$("#generic-worker-form").buildForm({
+                    "action": "index.html",
+                    "method": "post",
+                    "elements": [{
+                        "type": "p",
+                        "html": "Program"
+                    }, {
+                        "name": "program.name",
+                        "id": "txt-programname",
+                        "caption": "Program Name",
+                        "type": "text",
+                        "placeholder": "MH4"
+                    }, {
+                        "type": "fieldset",
+                        "caption": "Group",
+                        "elements" : [
+                        	{
+                        		"name" : "numbers",
+                        		"caption": "phone number",
+                        		"type" : "text",
+                        		"placeholder": "256788601462"
+                        	},{
+                        		"type" : "add",
+                        		"alert" : "add number"
+                        	}
+                        ]
+                    }, {
+                        "type": "fieldset",
+                        "caption": "Message",
+                        "elements" : [
+                        	{
+                        		"caption": "Message 1",
+                        		"type": "fieldset",
+                        		"elements" : [
+                        			{
+                        				"name":"program.messages[0].content",
+                        				"caption":"Content",
+                        				"type": "text",
+                        				"placeholder":"Hello"
+                        			},{
+                        				"name":"program.messages[0].date",
+                        				"caption":"Date",
+                        				"type": "text",
+                        				"placeholder":"now"
+                        			}
+                        		]
+                        	}, {
+                        		"caption": "Message 2",
+                        		"type": "fieldset",
+                        		"elements" : [
+                        			{
+                        				"name":"program.messages[1].content",
+                        				"caption":"Content",
+                        				"type": "text",
+                        				"placeholder":"How are you"
+                        			},{
+                        				"name":"program.messages[1].date",
+                        				"caption":"Date",
+                        				"type": "text",
+                        				"placeholder":"later"
+                        			}
+                        		]
+                        	},{
+                        		"type" : "add",
+                        		"alert" : "add message"
+                        	}
+                        ]
+                    }, {
+                        "type": "submit",
+                        "value": "Save"
+                    }]
+                });
+	
+		$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd());
+	});
+	
+	$(function(){
+	  	var xml = "<program><name>M4H</name><group>  <number>256788601462</number></group><message><content>Hello World</content><datetime>now</datetime></message></program>";
+		$('#xml').text(xml); 
+	});
+	
+	$.fn.serializeObject = function()
+	{
+	   var o = {};
+	   var a = this.serializeArray();
+	   $.each(a, function() {
+	       if (o[this.name]) {
+		   if (!o[this.name].push) {
+		       o[this.name] = [o[this.name]];
+		   }
+		   o[this.name].push(this.value || '');
+	       } else {
+		   o[this.name] = this.value || '';
+	       }
+	   });
+	   return o;
+	};
+	
+	function test(){
+		
+		var formData = $("#generic-worker-form-dynamic").serializeObject();
+		
+		/*
+		var formData = form2js('generic-worker-form-dynamic', '.', true,
+			function(node)
+			{
+				//if (node.getAttribute('name'))
+				if (typeof node.getAttribute == 'function')
+					alert("something on id:"+node.id+" or name:"+node.getAttribute('name')+" or class:"+node.getAttribute('class'));
+				//else
+				//	alert("not attibuted node");
+				if (node.id && node.id.match(/callbackTest/))
+				{
+					//alert("got specificname");
+					return { name: node.id, value: node.innerHTML };
+				}
+			});*/
+		$("#testArea").text(array2json(formData));
+	}
+	</script>
+	
 </head>
 
 <body>
@@ -61,6 +210,29 @@
 	Remove TTC worker. Enter worker name<input type="text" name="name"/>
 	<input type="submit" value="Submit"/>
 	</form>
+	
+	<h3>TTC generic form non dynamic</h3>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1">Form</a></li>
+			<li><a href="#tabs-2">JSON</a></li>
+			<li><a href="#tabs-3">XML</a></li>
+		</ul>
+		<div id="tabs-1">
+			<form id="generic-worker-form"></form>
+		</div>
+		<div id="tabs-2">
+			<code>{"program":{"name":"M4H","group":{"number":256788601462},"message":{"content":"Hello World","datetime":{"value":"now"}}}}</code>
+		</div>
+		<div id="tabs-3">
+			<code id="xml"></code>
+		</div>
+	</div>
+	<h3>TTC generic form dynamic!</h3>
+		<form id="generic-worker-form-dynamic"></form>
+	
+	<pre><code id="testArea">
+	</code></pre>
 </body>
 
 </html>
