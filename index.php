@@ -6,13 +6,13 @@
 <head>
 	<title>TTC Prototype</title>
 	<link href="lib/jqueryui/css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="stylesheet">
+	<link href="css/form.css"rel="stylesheet">
+	
 	<script src="lib/jqueryui/js/jquery-1.6.2.min.js"></script>
 	<script src="lib/jqueryui/js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script src="lib/dform/jquery.dform-0.1.4.min.js"></script>
 	<script src="js/ttc-generic-program.js"></script>
 	<script type="text/javascript" src="lib/form2js/src/form2js.js"></script>
-	<script type="text/javascript" src="lib/serializeObject/jquery.serializeObject.js"></script>
-	<script type="text/javascript" src="lib/array2json/array2json.js"></script>
 	<script>
 	$(function() {
 		//create tab
@@ -203,12 +203,6 @@
 			<code id="xml"></code>
 		</div>
 	</div>
-	<h3>Test form!</h3>
-	<form id="my-test-form" action="javascript:test()">
-		<label for="nameFirst">First name:</label>
-		<input id="nameFirst" type="text" name="person.name.first"/>
-		<input type="submit" />
-	</form>
 	<h3>TTC generic form dynamic!</h3>
 		<form id="generic-worker-form-dynamic"></form>
 	

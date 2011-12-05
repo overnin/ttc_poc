@@ -1,0 +1,19 @@
+{"program": [ 
+	"name", 
+	"customer", 
+	"owner", 
+	"startdate", 
+	"enddate", 
+	"participants", 
+	"country", 
+	"shortcode", 
+	"messages" ]}
+{"name":"text"}
+{"customer": "text" }
+{"owner": "text"}
+{"startdate":"date"}
+{"country":"text"}
+{"shortcode":"integer"}
+{"participant": "text"}
+{"messages": "text"}
+

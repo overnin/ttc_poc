@@ -24,6 +24,8 @@ function getState(){
 	}
 }
 
+
+
 function startWorker($config){
 	require_once('lib/xmlrpc-3.0.0.beta/xmlrpc.inc');
 	
@@ -31,15 +33,17 @@ function startWorker($config){
 	
 	//$c->setDebug(1);
 	$worker_config = json_decode($config);
+
 	
-	print $worker_config->program->name;
+	print "Worker start: ".$worker_config->program->name;
+	
 	
 	$val = array(
 		new xmlrpcval('yo_transport'),
 		new xmlrpcval($worker_config->program->name), 
 		new xmlrpcval (
 			array( 
-				'command' => new xmlrpcval("twistd --pidfile=./tmp/pids/%(program_name)s_%(process_num)s.pid -n start_worker --vhost=/develop --worker-class=vumi.workers.ttc.TtcGenericWorker2 --set-option=transport_name:".$worker_config->program->name),
+				'command' => new xmlrpcval("twistd --pidfile=./tmp/pids/%(program_name)s_%(process_num)s.pid -n start_worker --vhost=/develop --worker-class=vumi.workers.ttc.TtcGenericWorker --set-option=transport_name:".$worker_config->program->name),
 				//'command' => new xmlrpcval("ls -l"),
 				'autostart' => new xmlrpcval("true"),
 				'autorestart' => new xmlrpcval("true"),

@@ -4,17 +4,10 @@ function fromBackendToFrontEnd(configFile) {
 	$.dform.addType("addElt", function(option) {
 			return $("<button type='button'>").dformAttr(option).html("add "+option["label"])		
 		});
-	/*	
-	$.dform.subscribe("alert", function(option, type) {
-			if (type=="addElt")
-			{
-				this.click(function (){
-					alert("click on add element");
-					$(this).prev().after($(document.createElement('label')).html(this.label));
-					//	$(this).prev().after($(this).prev().prev().clone());
-			});
-		}
-	});*/
+	$.dform.addType("removeElt", function(option) {
+			return $("<button type='button'>").dformAttr(option).html("remove "+option["label"])		
+		});
+	
 	$.dform.subscribe("alert", function(option, type) {
 			//alert("message alert "+type);
 			if (type=="add")
@@ -24,6 +17,9 @@ function fromBackendToFrontEnd(configFile) {
 					$(this).prev().after($(this).prev().prev().clone());
 				});
 			};
+			if (type=="removeElt"){
+				alert("todo");	
+			}
 			if (type=="addElt")
 			{
 				this.click(function (){
@@ -31,17 +27,18 @@ function fromBackendToFrontEnd(configFile) {
 					//alert("click on add element "+$(this).prev('legend'));
 					var id = $(this).prevAll("fieldset").length;
 					var html = "<fieldset class='ui-dform-fieldset'>";
-					html = html + "<legend class='ui-form-legend'>"+$(this).attr('label')+"</legend>";
+					html = html + "<legend class='ui-dform-legend'>"+$(this).attr('label')+"</legend>";
 					var parentLabel = $(this).attr('label');
 					var tableLabel = $(this).parent().attr('name');
 					program[$(this).attr('label')].forEach(function(item) {
 							if (!isArray(program[item])) 
-								html = html + "<label>"+item+"</label><input type='text' name='program."+tableLabel+"["+id+"]."+parentLabel+"."+item+"'></input>"
+								html = html + "<label class='ui-dform-label'>"+item+"</label><input type='text' name='program."+tableLabel+"["+id+"]."+parentLabel+"."+item+"'></input>"
 							else {
 								html = html + "<fieldset class='ui-dform-fieldset'><legend class='ui-form-legend'>"+item+"</legend></fieldset>"
 							}
 					})
 					html = html + "</fieldset>";
+					//$(this).after($.dform.createElement({"type":"removeElt"}));
 					//alert("adding "+html);
 					if ($(this).prevAll("fieldset").length)
 					{
@@ -63,14 +60,14 @@ function fromBackendToFrontEnd(configFile) {
 				"shortcode",
 				"country",
 				"numbers",
-				"messages"
+				"dialogues",
 				],
 			"name" : "text",
 			"customer": "text",
 			"shortcode" : "text",
 			"numbers":"textarea",
 			"country": "text",
-			"messages": ["message","question","answer"],
+			"dialogues": ["message","question","answer"],
 			"message": ["content","date","time"],
 			"question": ["content","keyword", "time",["answer"]],
 			"answer":["keyword","feedback","action"],
