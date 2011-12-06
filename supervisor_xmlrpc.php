@@ -39,7 +39,7 @@ function startWorker($config){
 	
 	
 	$val = array(
-		new xmlrpcval('yo_transport'),
+		new xmlrpcval('echo_worker'),
 		new xmlrpcval($worker_config->program->name), 
 		new xmlrpcval (
 			array( 
