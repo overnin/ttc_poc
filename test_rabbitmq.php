@@ -57,8 +57,8 @@ function sendMessageTo($msg, $to) {
 	$BROKER_PORT   = 5672;
 	$QUEUE    = $to; //'telnet.inbound';
 	//$ROUTING_KEY = 'telnet.event';
-	$USER     ='guest';
-	$PASSWORD ='guest';
+	$USER     ='vumi';
+	$PASSWORD ='vumi';
 	$VHOST = "/develop";
 	
 	//vumi use the JSON fromat for his messages
