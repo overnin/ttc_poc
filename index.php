@@ -161,9 +161,23 @@
 			echo "<br>Trace:\n" . $e->getTraceAsString();
 		}
 	?>
-	<a href="http://localhost:9010/">Still can visit the supervisord</a>
+	<a href="http://localhost:9010/">Still can visit the supervisord (localhost access required</a>
 	</p>
-	
+	<div>
+	<?php
+		#include "supervisor_xmlrpc.php";
+		try {	
+			$arr = getAllProcessInfo();
+			foreach ($arr as $item) {
+				echo "=> ".$item['group']." : ".$item['name']." is ".$item['statename']."<br/>";
+			}
+		} catch (Exception $e) {
+			echo "no";
+			echo '<br>Caught exception: ',  $e->getMessage();
+			echo "<br>Trace:\n" . $e->getTraceAsString();
+		} 
+	?>
+	</div>
 	<h3>Communication</h3>
 	<form name="sendMessageToEcho" action="send_message_to_echo_worker.php" method="get">
 	Send Messsage via RabbitMQ to a worker or transporter. Content: <input type="text" name="message" /> 
