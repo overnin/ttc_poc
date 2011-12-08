@@ -60,18 +60,22 @@ function fromBackendToFrontEnd(configFile) {
 				"shortcode",
 				"country",
 				"numbers",
-				"dialogues",
+				"dialogue",
 				],
 			"name" : "text",
 			"customer": "text",
 			"shortcode" : "text",
 			"numbers":"textarea",
 			"country": "text",
-			"dialogues": ["message","question","answer"],
-			"message": ["content","date","time"],
-			"question": ["content","keyword", "time",["answer"]],
+			"dialogue": ["name","type","interaction","add-interaction"], 
+			"interaction":["content","type","schedule_type","name"],
+			"add-interaction":"button",
+			"announcement": ["content","name","schedule_type"],
+			"question": ["content","keyword", "schedule_type",["answer"]],
 			"answer":["keyword","feedback","action"],
 			"id":"text",
+			"schedule_type":"text",
+			"type":"text",
 			"content":"text",
 			"date": "text",
 			"time": "text",
@@ -94,14 +98,56 @@ function fromBackendToFrontEnd(configFile) {
                 }]
         };
         
+        
         function isArray(obj) {
         	//returns true is it is an array
+        	//alert("is object an array "+obj)
         	if (obj.constructor.toString().indexOf("Array") == -1)
         		return false;
         	else
         		return true;
         };
         
+        
+        function configToForm(item,elt,id_prefix){
+        	program[item].forEach(function (sub_item){
+        			//alert("for "+sub_item);
+        			if (!isArray(program[sub_item]))
+        			{
+        				//alert("add item ");
+        				if (program[sub_item]!="button"){
+						elt["elements"].push(
+							{
+								"name":id_prefix+"."+sub_item,
+								"caption": sub_item,
+								"type": program[sub_item]
+							});
+					} else {
+						elt["elements"].push({
+        						"type":"addElt",
+        						"alert":"add message",
+        						"label": sub_item.substring(4)
+        					});	
+					}
+        			}else{
+        				//alert("add fieldset "+sub_item)
+        				var myelt = {
+        					"type":"fieldset",
+        					"caption": sub_item,
+        					//"name": id_prefix+"."+sub_item,
+        					"elements": []
+        				};
+        				//alert("start recursive call "+sub_item);
+        				configToForm(sub_item,myelt,id_prefix+"."+sub_item);
+        				elt["elements"].push(myelt);
+        		}
+        	});
+        }
+        
+        //echo "something"
+        configToForm("program",myform, "program");
+        
+        /*
         program["program"].forEach(function(item){
         		if (!isArray(program[item]))
         		{
@@ -132,7 +178,7 @@ function fromBackendToFrontEnd(configFile) {
         			});
         		myform["elements"].push(myelt);
         	}
-        });
+        });*/
           
         myform["elements"].push({
                         "type": "submit",
