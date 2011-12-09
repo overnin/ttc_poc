@@ -1,73 +1,23 @@
-function fromBackendToFrontEnd(configFile) {
-	//alert("function called");
-	
-	$.dform.addType("addElt", function(option) {
-			return $("<button type='button'>").dformAttr(option).html("add "+option["label"])		
-		});
-	$.dform.addType("removeElt", function(option) {
-			return $("<button type='button'>").dformAttr(option).html("remove "+option["label"])		
-		});
-	
-	$.dform.subscribe("alert", function(option, type) {
-			//alert("message alert "+type);
-			if (type=="add")
-			{
-				this.click(function (){
-					//alert(option +" "+ $(this).prev().prev().text());
-					$(this).prev().after($(this).prev().prev().clone());
-				});
-			};
-			if (type=="removeElt"){
-				alert("todo");	
-			}
-			if (type=="addElt")
-			{
-				this.click(function (){
-					
-					//alert("click on add element "+$(this).prev('legend'));
-					var id = $(this).prevAll("fieldset").length;
-					var html = "<fieldset class='ui-dform-fieldset'>";
-					html = html + "<legend class='ui-dform-legend'>"+$(this).attr('label')+"</legend>";
-					var parentLabel = $(this).attr('label');
-					var tableLabel = $(this).parent().attr('name');
-					program[$(this).attr('label')].forEach(function(item) {
-							if (!isArray(program[item])) 
-								html = html + "<label class='ui-dform-label'>"+item+"</label><input type='text' name='program."+tableLabel+"["+id+"]."+parentLabel+"."+item+"'></input>"
-							else {
-								html = html + "<fieldset class='ui-dform-fieldset'><legend class='ui-form-legend'>"+item+"</legend></fieldset>"
-							}
-					})
-					html = html + "</fieldset>";
-					//$(this).after($.dform.createElement({"type":"removeElt"}));
-					//alert("adding "+html);
-					if ($(this).prevAll("fieldset").length)
-					{
-						//alert("there is a fieldset")
-						$(this).prevAll("fieldset").first().after(html);
-					}else{
-						//alert("no fieldset")
-						$(this).prevAll("legend").after(html);
-					}
-					//
-					//	$(this).prev().after($(this).prev().prev().clone());
-			});
-			};
-	});
-		
-	var program = {"program": [ 
+var program = {"program": [ 
 				"name", 
 				"customer",  
 				"shortcode",
 				"country",
-				"numbers",
-				"dialogue",
+				"participants",
+				"dialogues",
 				],
 			"name" : "text",
 			"customer": "text",
 			"shortcode" : "text",
-			"numbers":"textarea",
+			"participants":["add-participant"],
+			"add-participant":"button",
+			"participant":["number","name"],
+			"number":"text",
 			"country": "text",
-			"dialogue": ["name","type","interaction","add-interaction"], 
+			"dialogues": ["add-dialogue"],
+			"add-dialogue":"button",
+			"dialogue": ["name","type","interactions"],
+			"interactions":["add-interaction"],
 			"interaction":["content","type","schedule_type","name"],
 			"add-interaction":"button",
 			"announcement": ["content","name","schedule_type"],
@@ -84,6 +34,105 @@ function fromBackendToFrontEnd(configFile) {
 			"feedback":"text"
 			};
 	
+
+
+
+
+function clickBasicButton(){
+					
+					//alert("click on add element "+$(this).prev('legend'));
+					var id = $(this).prevAll("fieldset").length;
+					var parentLabel = $(this).attr('label');
+					var tableLabel = $(this).parent().attr('name');
+					
+					var html = "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]'>";
+					html = html + "<legend class='ui-dform-legend'>"+$(this).attr('label')+"</legend>";
+					if (isArray(program[parentLabel])){
+						program[$(this).attr('label')].forEach(function(item) {
+							if (isArray(program[item])) {
+									html = html + "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]."+item+"'><legend class='ui-form-legend'>"+item+"</legend>"
+									if (program[program[item][0]]=="button"){
+										html = html + "<button class='ui-dform-addElt' type='button' label='"+program[item][0].substring(4)+"'>add "+program[item][0].substring(4)+"</button>"
+									}
+									html = html + "</fieldset>"
+							}else if (program[item]=="button") {
+								html = html + "<button class='ui-dform-addElt' type='button' label='"+item.substring(4)+"'>add "+item.substring(4)+"</button>"
+							}else{
+								html = html + "<label class='ui-dform-label'>"+item+"</label><input type='text' name='"+tableLabel+"["+id+"]."+item+"'></input>"
+							}
+						});
+					}else{
+						html = html + "<label class='ui-dform-label'>"+parentLabel+"</label><input type='text' name='"+tableLabel+"."+parentLabel+"["+id+"]'></input>"
+					}
+					html = html + "</fieldset>";
+					//$(this).after($.dform.createElement({"type":"removeElt"}));
+					//alert("adding "+html);
+					if ($(this).prevAll("fieldset").length)
+					{
+						//alert("there is a fieldset")
+						$(this).prevAll("fieldset").first().after(html);
+					}else{
+						//alert("no fieldset")
+						if($(this).prevAll("input").length) {
+							$(this).prevAll("input").first().after(html);
+						}else {
+							$(this).prevAll("legend").after(html);
+						}
+					}
+					
+					$.each($('.ui-dform-addElt'),function(item,value){
+							if (!$.data(value,'events')) {
+								$(value).click(clickBasicButton);
+							}
+					});
+					
+					//$(".ui-dform-addElt").each(function(){click(clickBasicButton)
+					//
+					//	$(this).prev().after($(this).prev().prev().clone());
+			}
+
+
+ function isArray(obj) {
+        	//returns true is it is an array
+        	//alert("is object an array "+obj)
+        	if (obj.constructor.toString().indexOf("Array") == -1)
+        		return false;
+        	else
+        		return true;
+        };
+
+
+function fromBackendToFrontEnd(configFile) {
+	//alert("function called");
+	
+	$.dform.addType("addElt", function(option) {
+			return $("<button type='button'>").dformAttr(option).html("add "+option["label"])		
+		});
+	$.dform.addType("removeElt", function(option) {
+			return $("<button type='button'>").dformAttr(option).html("remove "+option["label"])		
+		});
+	
+	
+		
+	$.dform.subscribe("alert", function(option, type) {
+			//alert("message alert "+type);
+			if (type=="add")
+			{
+				this.click(function (){
+					//alert(option +" "+ $(this).prev().prev().text());
+					$(this).prev().after($(this).prev().prev().clone());
+				});
+			};
+			if (type=="removeElt"){
+				alert("todo");	
+			}
+			if (type=="addElt")
+			{
+				this.click(clickBasicButton);
+			};
+	});
+		
+	
 	//var test = ""
 	//program["program"].forEach(function(item){test= test+item});
 	//alert("program contains"+test);
@@ -98,15 +147,6 @@ function fromBackendToFrontEnd(configFile) {
                 }]
         };
         
-        
-        function isArray(obj) {
-        	//returns true is it is an array
-        	//alert("is object an array "+obj)
-        	if (obj.constructor.toString().indexOf("Array") == -1)
-        		return false;
-        	else
-        		return true;
-        };
         
         
         function configToForm(item,elt,id_prefix){
@@ -134,7 +174,7 @@ function fromBackendToFrontEnd(configFile) {
         				var myelt = {
         					"type":"fieldset",
         					"caption": sub_item,
-        					//"name": id_prefix+"."+sub_item,
+        					"name": id_prefix+"."+sub_item,
         					"elements": []
         				};
         				//alert("start recursive call "+sub_item);
