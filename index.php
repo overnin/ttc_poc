@@ -225,6 +225,24 @@
 	</code></pre>
 	<p>result:</p>
 	<div id="result"></div>
+	<h3>TTC generic worker control... what is in the database</h3>
+	<?php 
+		include "mongodb_feature.php";
+		try {
+			$cursor = getProgram();
+			foreach ($cursor as $program){
+				echo "<p>->".$program['name']."</p><br/>";
+			}
+		} catch (Exception $e) {
+			echo "no";
+			echo '<br>Caught exception: ',  $e->getMessage();
+			echo "<br>Trace:\n" . $e->getTraceAsString();
+		}
+	?>
+	<form name="deleteProgramViaHTTP" action="delete_worker_via_http.php" method="get"> 
+		Remove program from database <input type="text" name="content"/> 
+	<input type="submit" value="Submit" />
+	</form>
 </body>
 
 </html>

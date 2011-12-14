@@ -1,0 +1,39 @@
+<?php
+
+//require_once 'lib/Mongodloid/Connection.php';
+
+function getProgram(){
+	
+	$connection = new Mongo();
+	
+	//$db->setSlaveOkay(true);
+	$db = $connection->selectDB('dev');
+	
+	//$db->program->find()->getNext();
+	//echo 
+	
+	$cursor = $db->programs->find();
+	
+	return $cursor;
+	//var_dump(iterator_to_array($cursor));
+	
+	/*foreach ($db->programs->find() as $program){
+		echo $program->name;	
+	}*/	
+}
+
+function removeProgram($program_name){
+	$connection = new Mongo();
+	
+	//$db->setSlaveOkay(true);
+	$db = $connection->selectDB('dev');
+	
+	//$db->program->find()->getNext();
+	//echo 
+	
+	$cursor = $db->programs->remove(array("name" => $program_name));
+}
+
+
+
+?>

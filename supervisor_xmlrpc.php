@@ -65,7 +65,7 @@ function startWorker($config){
 		new xmlrpcval($worker_config->program->name), 
 		new xmlrpcval (
 			array( 
-				'command' => new xmlrpcval("twistd --pidfile=./tmp/pids/%(program_name)s_%(process_num)s.pid -n start_worker --vhost=/develop --worker-class=vumi.workers.ttc.TtcGenericWorker --set-option=transport_name:".$worker_config->program->name),
+				'command' => new xmlrpcval("twistd --pidfile=./tmp/pids/%(program_name)s_%(process_num)s.pid -n start_worker --vhost=/develop --worker-class=vumi.workers.ttc.TtcGenericWorker --config=./config/ttc/ttc_generic_worker.yaml --set-option=control_name:".$worker_config->program->name),
 				//'command' => new xmlrpcval("ls -l"),
 				'autostart' => new xmlrpcval("true"),
 				'autorestart' => new xmlrpcval("true"),
