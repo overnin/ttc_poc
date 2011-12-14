@@ -18,6 +18,21 @@
 		//create tab
 		$("#tabs").tabs();
 		
+		$(".delete_program").click(function(){
+				var element = $(this);
+				//alert("delete "+element.attr("id"))
+				var dataString = "action=removeprogram&program="+element.attr("id")
+				$.ajax({
+						type: "POST",
+						url: "runmongo.php",
+						data: dataString,
+						cache: false,
+						success: function(html){
+							alert(html);
+						}
+				});
+		});
+		
 		$.dform.addType("add", function(option) {
 			return $("<button type='button'>").dformAttr(option).html("add something")		
 		});
@@ -127,6 +142,7 @@
 				$("#result").html(data);
 		});
 	}
+	
 	</script>
 	
 </head>
@@ -231,7 +247,18 @@
 		try {
 			$cursor = getProgram();
 			foreach ($cursor as $program){
-				echo "<p>->".$program['name']."</p><br/>";
+				echo "<div>".$program['name']."<input id='".$program['name']."' class='delete_program' type='button' value='delete'/></div>";
+				$schedules = getSchedules($program['name']);
+				echo "<div><p>->".$program['name']."_schedules:</p>";
+				foreach ($schedules as $schedule){
+					echo "-->datetime:".$schedule['datetime']." phone:".$schedule['participant_phone']."<br/>";
+				}
+				$logs = getLogs($program['name']);
+				echo "<div><p>->".$program['name']."_log:</p>";
+				foreach ($logs as $log){
+					echo "-->datetime:".$log['datetime']." phone:".$log['message']['to_addr']." content:".$log['message']['content']."<br/>";
+				}
+				echo "</div>";
 			}
 		} catch (Exception $e) {
 			echo "no";
@@ -239,10 +266,6 @@
 			echo "<br>Trace:\n" . $e->getTraceAsString();
 		}
 	?>
-	<form name="deleteProgramViaHTTP" action="delete_worker_via_http.php" method="get"> 
-		Remove program from database <input type="text" name="content"/> 
-	<input type="submit" value="Submit" />
-	</form>
 </body>
 
 </html>

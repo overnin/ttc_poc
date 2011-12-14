@@ -22,6 +22,35 @@ function getProgram(){
 	}*/	
 }
 
+function getLogs($program_name){
+	$connection = new Mongo();
+	
+	//$db->setSlaveOkay(true);
+	$db = $connection->selectDB('dev');
+	
+	//$db->program->find()->getNext();
+	//echo 
+	
+	$cursor = $db->selectCollection($program_name.'_logs')->find();
+	
+	return $cursor;
+}
+
+function getSchedules($program_name){
+	$connection = new Mongo();
+	
+	//$db->setSlaveOkay(true);
+	$db = $connection->selectDB('dev');
+	
+	//$db->program->find()->getNext();
+	//echo 
+	
+	//$cursor = $db($program_name.'_Schedules')->find();
+	$cursor = $db->selectCollection($program_name.'_schedules')->find();
+	
+	return $cursor;
+}
+
 function removeProgram($program_name){
 	$connection = new Mongo();
 	
@@ -32,6 +61,8 @@ function removeProgram($program_name){
 	//echo 
 	
 	$cursor = $db->programs->remove(array("name" => $program_name));
+	$db->dropCollection($program_name.'_schedules');
+	$db->dropCollection($program_name.'_logs');
 }
 
 
