@@ -14,9 +14,11 @@
 	$(function(){
 			var program_id = $.getUrlVar('id');
 			$.get('ajax.php',"action=get&id="+program_id, function(data){
-					alert("get the program from the server"+data);
+					var response = $.parseJSON(data);
+					//alert("get the program from the server"+response['ok']);
+					$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd(response['msg']['program']));
 			});
-			$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd());
+			
 	});
 
 	$.extend({

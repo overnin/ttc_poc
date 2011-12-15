@@ -9,7 +9,7 @@ var program = {"program": [
 			"name" : "text",
 			"customer": "text",
 			"shortcode" : "text",
-			"participants":["add-participant","add-group"],
+			"participants":["add-participant"],
 			"add-group":"button",
 			"add-participant":"button",
 			"participant":["phone","name"],
@@ -152,25 +152,51 @@ function fromBackendToFrontEnd(configFile) {
         
         
         
-        function configToForm(item,elt,id_prefix){
+        function configToForm(item,elt,id_prefix,configTree){
         	program[item].forEach(function (sub_item){
         			//alert("for "+sub_item);
         			if (!isArray(program[sub_item]))
         			{
         				//alert("add item ");
-        				if (program[sub_item]!="button"){
-						elt["elements"].push(
-							{
-								"name":id_prefix+"."+sub_item,
-								"caption": sub_item,
-								"type": program[sub_item]
-							});
-					} else {
+        				if (program[sub_item]=="button"){
+        					var label = sub_item.substring(4);
+        					if (configTree && configTree.length>0){
+        						var i = 0;
+        						
+        						configTree.forEach(function (configElt){
+        								var myelt = {
+        									"type":"fieldset",
+        									"caption": label +" "+ (i + 1),
+        									"name": id_prefix+"["+i+"]",
+        									"elements": []
+        								};
+        								configToForm(label,myelt,id_prefix+"["+i+"]",configElt);
+        								i = i + 1;
+        								elt["elements"].push(myelt);
+        						});
+        						
+        					}
 						elt["elements"].push({
         						"type":"addElt",
         						"alert":"add message",
-        						"label": sub_item.substring(4)
-        					});	
+        						"label": label
+        					});
+					} else {
+						var eltValue = "";
+						if (configTree) {
+							eltValue = configTree[sub_item];
+						}
+						var label = null;
+						if (program[sub_item]!="hidden"){
+							label = sub_item;
+						}
+						elt["elements"].push(
+							{
+								"name":id_prefix+"."+sub_item,
+								"caption": label,
+								"type": program[sub_item],
+								"value": eltValue
+							});	
 					}
         			}else{
         				//alert("add fieldset "+sub_item)
@@ -181,14 +207,18 @@ function fromBackendToFrontEnd(configFile) {
         					"elements": []
         				};
         				//alert("start recursive call "+sub_item);
-        				configToForm(sub_item,myelt,id_prefix+"."+sub_item);
+        				if (configTree) {
+        					configToForm(sub_item,myelt,id_prefix+"."+sub_item, configTree[sub_item]);
+        				} else {
+       						configToForm(sub_item,myelt,id_prefix+"."+sub_item);
+        				}
         				elt["elements"].push(myelt);
         		}
         	});
         }
         
         //echo "something"
-        configToForm("program",myform, "program");
+        configToForm("program",myform, "program", configFile);
         
         /*
         program["program"].forEach(function(item){
