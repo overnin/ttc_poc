@@ -5,3 +5,7 @@
 .ui-dform-text {
     display: block;
 }
+
+.box {
+	border: dashed black 1px;	
+}

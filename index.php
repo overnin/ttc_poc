@@ -17,18 +17,18 @@
 	$(function() {
 		//create tab
 		$("#tabs").tabs();
-		
-		$(".delete_program").click(function(){
+		$(".action_program").click(function(){
 				var element = $(this);
+				var action = element.attr("action");
 				//alert("delete "+element.attr("id"))
-				var dataString = "action=removeprogram&program="+element.attr("id")
+				var dataString = "action="+action+"&program="+element.attr("var")
 				$.ajax({
 						type: "POST",
 						url: "runmongo.php",
 						data: dataString,
 						cache: false,
 						success: function(html){
-							alert(html);
+							alert("data deleted, refresh the page!" + html);
 						}
 				});
 		});
@@ -241,13 +241,14 @@
 	</code></pre>
 	<p>result:</p>
 	<div id="result"></div>
-	<h3>TTC generic worker... what is in the database</h3>
+	<h3>TTC generic worker... what is in their database</h3>
 	<?php 
 		include "mongodb_feature.php";
 		try {
 			$cursor = getProgram();
 			foreach ($cursor as $program){
-				echo "<div>".$program['name']."<input id='".$program['name']."' class='delete_program' type='button' value='delete'/></div>";
+				echo "<div class='box'> ";
+				echo "<div>".$program['name']."<input var='".$program['name']."' class='action_program' action='delete_program' type='button' value='delete'/></div>";
 				$schedules = getSchedules($program['name']);
 				echo "<div><p>->".$program['name']."_schedules:</p>";
 				foreach ($schedules as $schedule){
@@ -259,6 +260,8 @@
 					echo "-->datetime:".$log['datetime']." phone:".$log['message']['to_addr']." content:".$log['message']['content']."<br/>";
 				}
 				echo "</div>";
+				echo "</div>";
+				echo "</div><br/>";
 			}
 		} catch (Exception $e) {
 			echo "no";
@@ -267,6 +270,37 @@
 		}
 	?>
 	<h3>Front-End control of the programs</h3> 
+	<?php
+		try{
+			$cursor = getFrontEndPrograms();
+			foreach ($cursor as $program){
+				echo "<div class='box'> ";
+				echo "<div>".$program['name'];
+				echo "<input var='".$program['name']."' class='action_program' action='delete_feprogram' type='button' value='delete program'/>";
+				echo "<a href='feprogram.php?id=".$program['_id']."'>edit</a>";
+				echo "<input var='".$program['name']."' class='add_feparticipant' type='button' value='add participant'/>";
+				echo "</div>";
+				echo "<div>->Status: ".$program['status'];
+				if ($program['status'] == "NotValide") {
+					echo " Please edit the program to make it valid";
+				} else if ($program['status'] == "Valide") {
+					echo "<input id='".$program['name']."' class='start_feprogram' type='button' value='start'/>";
+				} else if ($program['status'] == "Running") {
+					echo "<input id='".$program['name']."' class='stop_feprogram' type='button' value='stop'/>";
+				} else {
+					echo "status unknown";
+				}
+				echo "<div>->Worker started:".$program['start_date']."</div>";
+				echo "<div>->tasks finished:".$program['end_date']."</div>";
+				echo "</div>";
+				echo "</div><br/>";
+			}
+		}catch (Exception $e) {
+			echo "no";
+			echo '<br>Caught exception: ',  $e->getMessage();
+			echo "<br>Trace:\n" . $e->getTraceAsString();
+		}
+	?>
 </body>
 
 </html>
