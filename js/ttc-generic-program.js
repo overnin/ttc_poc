@@ -9,16 +9,19 @@ var program = {"program": [
 			"name" : "text",
 			"customer": "text",
 			"shortcode" : "text",
-			"participants":["add-participant"],
+			"participants":["add-participant","add-group"],
+			"add-group":"button",
 			"add-participant":"button",
 			"participant":["phone","name"],
 			"phone":"text",
 			"country": "text",
 			"dialogues": ["add-dialogue"],
 			"add-dialogue":"button",
-			"dialogue": ["name","type","interactions"],
+			"dialogue": ["name","type","interactions","dialogue_id"],
+			"dialogue_id": "hidden",	
 			"interactions":["add-interaction"],
-			"interaction":["content","type","schedule_type","name"],
+			"interaction":["content","type","schedule_type","interaction_id"],
+			"interaction_id":"hidden",
 			"add-interaction":"button",
 			"announcement": ["content","name","schedule_type"],
 			"question": ["content","keyword", "schedule_type",["answer"]],
@@ -36,60 +39,60 @@ var program = {"program": [
 	
 
 
-
-
 function clickBasicButton(){
 					
-					//alert("click on add element "+$(this).prev('legend'));
-					var id = $(this).prevAll("fieldset").length;
-					var parentLabel = $(this).attr('label');
-					var tableLabel = $(this).parent().attr('name');
-					
-					var html = "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]'>";
-					html = html + "<legend class='ui-dform-legend'>"+$(this).attr('label')+"</legend>";
-					if (isArray(program[parentLabel])){
-						program[$(this).attr('label')].forEach(function(item) {
-							if (isArray(program[item])) {
-									html = html + "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]."+item+"'><legend class='ui-form-legend'>"+item+"</legend>"
-									if (program[program[item][0]]=="button"){
-										html = html + "<button class='ui-dform-addElt' type='button' label='"+program[item][0].substring(4)+"'>add "+program[item][0].substring(4)+"</button>"
-									}
-									html = html + "</fieldset>"
-							}else if (program[item]=="button") {
-								html = html + "<button class='ui-dform-addElt' type='button' label='"+item.substring(4)+"'>add "+item.substring(4)+"</button>"
-							}else{
-								html = html + "<label class='ui-dform-label'>"+item+"</label><input type='text' name='"+tableLabel+"["+id+"]."+item+"'></input>"
-							}
-						});
-					}else{
-						html = html + "<label class='ui-dform-label'>"+parentLabel+"</label><input type='text' name='"+tableLabel+"."+parentLabel+"["+id+"]'></input>"
+	//alert("click on add element "+$(this).prev('legend'));
+	var id = $(this).prevAll("fieldset").length;
+	var parentLabel = $(this).attr('label');
+	var tableLabel = $(this).parent().attr('name');
+	
+	var html = "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]'>";
+	html = html + "<legend class='ui-dform-legend'>"+$(this).attr('label')+"</legend>";
+	if (isArray(program[parentLabel])){
+		program[$(this).attr('label')].forEach(function(item) {
+			if (isArray(program[item])) {
+					html = html + "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]."+item+"'><legend class='ui-form-legend'>"+item+"</legend>"
+					if (program[program[item][0]]=="button"){
+						html = html + "<button class='ui-dform-addElt' type='button' label='"+program[item][0].substring(4)+"'>add "+program[item][0].substring(4)+"</button>"
 					}
-					html = html + "</fieldset>";
-					//$(this).after($.dform.createElement({"type":"removeElt"}));
-					//alert("adding "+html);
-					if ($(this).prevAll("fieldset").length)
-					{
-						//alert("there is a fieldset")
-						$(this).prevAll("fieldset").first().after(html);
-					}else{
-						//alert("no fieldset")
-						if($(this).prevAll("input").length) {
-							$(this).prevAll("input").first().after(html);
-						}else {
-							$(this).prevAll("legend").after(html);
-						}
-					}
-					
-					$.each($('.ui-dform-addElt'),function(item,value){
-							if (!$.data(value,'events')) {
-								$(value).click(clickBasicButton);
-							}
-					});
-					
-					//$(".ui-dform-addElt").each(function(){click(clickBasicButton)
-					//
-					//	$(this).prev().after($(this).prev().prev().clone());
+					html = html + "</fieldset>"
+			}else if (program[item]=="button") {
+				html = html + "<button class='ui-dform-addElt' type='button' label='"+item.substring(4)+"'>add "+item.substring(4)+"</button>"
+			}else if (program[item]=="hidden") {
+				html = html + "<input type="+program[item]+" name='"+tableLabel+"["+id+"]."+item+"' value='"+id+"'></input>"
+			}else{
+				html = html + "<label class='ui-dform-label'>"+item+"</label><input type="+program[item]+" name='"+tableLabel+"["+id+"]."+item+"'></input>"
 			}
+		});
+	}else{
+		html = html + "<label class='ui-dform-label'>"+parentLabel+"</label><input type='text' name='"+tableLabel+"."+parentLabel+"["+id+"]'></input>"
+	}
+	html = html + "</fieldset>";
+	//$(this).after($.dform.createElement({"type":"removeElt"}));
+	//alert("adding "+html);
+	if ($(this).prevAll("fieldset").length)
+	{
+		//alert("there is a fieldset")
+		$(this).prevAll("fieldset").first().after(html);
+	}else{
+		//alert("no fieldset")
+		if($(this).prevAll("input").length) {
+			$(this).prevAll("input").first().after(html);
+		}else {
+			$(this).prevAll("legend").after(html);
+		}
+	}
+	
+	$.each($('.ui-dform-addElt'),function(item,value){
+			if (!$.data(value,'events')) {
+				$(value).click(clickBasicButton);
+			}
+	});
+	
+	//$(".ui-dform-addElt").each(function(){click(clickBasicButton)
+	//
+	//	$(this).prev().after($(this).prev().prev().clone());
+}
 
 
  function isArray(obj) {

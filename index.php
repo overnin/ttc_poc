@@ -233,7 +233,7 @@
 			<code id="xml"></code>
 		</div>
 	</div>
-	<h3>TTC generic form dynamic!</h3>
+	<h3>Create a new TTC generci worker (dynamic form)</h3>
 		<form id="generic-worker-form-dynamic"></form>
 	
 	<p>data to be send</p>
@@ -241,7 +241,7 @@
 	</code></pre>
 	<p>result:</p>
 	<div id="result"></div>
-	<h3>TTC generic worker control... what is in the database</h3>
+	<h3>TTC generic worker... what is in the database</h3>
 	<?php 
 		include "mongodb_feature.php";
 		try {
@@ -266,6 +266,7 @@
 			echo "<br>Trace:\n" . $e->getTraceAsString();
 		}
 	?>
+	<h3>Front-End control of the programs</h3> 
 </body>
 
 </html>
