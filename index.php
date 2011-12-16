@@ -225,7 +225,12 @@
 	<h3>Create a new TTC generci worker (dynamic form)</h3>
 		<form id="generic-worker-form-dynamic"></form>
 	
-	
+	<p>data to be send</p>
+	<pre><code id="testArea">
+	</code></pre>
+	<p>result:</p>
+	<div id="result"></div>
+		
 	<h3>TTC generic worker... what is in their database</h3>
 	<?php 
 		include "mongodb_feature.php";

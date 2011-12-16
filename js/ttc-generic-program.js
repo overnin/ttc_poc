@@ -110,22 +110,33 @@ function isArray(obj) {
 function updateRadioButtonSubmenu() {
 	//var elt = event.currentTarget;
 	var elt = this;
-	var box = $(elt).parent().children("fieldset"); 
-	if (box.length){
+	var box = $(elt).parent().next("fieldset"); 
+	if (box){
 		$(box).remove();
-	}
+	} 
 	
-	box = {"type":"fieldset","elements":[]};
+	var newContent = {"type":"fieldset","elements":[]};
+	var name = $(elt).parent().parent().attr('name');
+	configToForm($(elt).attr('value'), newContent, name);
 	
-	configToForm($(elt).attr('value'), box,$(elt).parent().parent().attr('name'));
+	$(elt).parent().formElement(newContent);
 	
-	$(elt).parent().formElement(box);
+	var newElt = $(elt).nextAll('fieldset');
+	
+	$(elt).parent().after($(newElt).clone());
+	//$(newElt).clone().appendTo($(elt).parent());
+	$(newElt).remove();
+	//$(elt).parent().after($(newElt).clone());
 	
 	activeForm();
 };
 
 
 function configToForm(item,elt,id_prefix,configTree){
+	if (!program[item]){
+		elt['type']=null;	
+		return;
+	}
 	program[item].forEach(function (sub_item){
 			//alert("for "+sub_item);
 			if (!isArray(program[sub_item]))
@@ -157,17 +168,35 @@ function configToForm(item,elt,id_prefix,configTree){
 				} else {
 					if (program[sub_item]=="radiobuttons"){
 						var radio_type = sub_item.substring(6);
-					
+					        var checkedRadio = {};
+					        var checkedItem;
+					        if (configTree) {
+					        	$.each(program[radio_type],function(k,v){
+					        		if (k!=configTree[radio_type])
+					        			checkedRadio[k] = v;
+					        		else {
+					        			checkedRadio[k] = {"value": k, 
+					        				"caption":v,
+					        				"checked":"checked"
+					        			}
+					        			checkedItem = k;
+					        		}
+					        })} else {
+					        	checkedRadio = program[radio_type];
+					        }
 						elt["elements"].push(
 						{
 							"name":id_prefix+"."+radio_type,
 							"caption": label,
 							"type": program[sub_item],
-							//"class": "labellist",
-							"options": program[radio_type] 
+							"options": checkedRadio 
 						});
-					
-						
+						if (checkedItem){
+							var box = {"type":"fieldset","elements":[]};
+							configToForm(checkedItem, box,id_prefix,configTree);
+							if (box['type'])
+								elt["elements"].push(box);
+						}
 					}else{	
 						var eltValue = "";
 						if (configTree) {
@@ -247,11 +276,6 @@ function fromBackendToFrontEnd(configFile) {
                 }]
         };
         
-        
-        
-        
-        
-        //echo "something"
         configToForm("program",myform, "program", configFile);
         
           
@@ -259,7 +283,7 @@ function fromBackendToFrontEnd(configFile) {
                         "type": "submit",
                         "value": "Save"
                 })
-        //alert("myform ready:"+myform)
+        
         return myform;
 }
 
