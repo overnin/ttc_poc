@@ -130,18 +130,7 @@
 		$('#xml').text(xml); 
 	});
 	
-	function test(){
-		
-		var formData = form2js('generic-worker-form-dynamic', '.', true);
-		//alert();
-		var indata= "description="+JSON.stringify(formData, null, '\t');
-		
-		$("#testArea").text(indata);
-		
-		$.get('create_ttc_worker.php',indata, function(data) {
-				$("#result").html(data);
-		});
-	}
+	
 	
 	</script>
 	
@@ -236,11 +225,7 @@
 	<h3>Create a new TTC generci worker (dynamic form)</h3>
 		<form id="generic-worker-form-dynamic"></form>
 	
-	<p>data to be send</p>
-	<pre><code id="testArea">
-	</code></pre>
-	<p>result:</p>
-	<div id="result"></div>
+	
 	<h3>TTC generic worker... what is in their database</h3>
 	<?php 
 		include "mongodb_feature.php";

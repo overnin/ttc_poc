@@ -1,5 +1,5 @@
 .ui-dform-label {
-    display: block;
+    
 }
 
 .ui-dform-text {
@@ -8,4 +8,12 @@
 
 .box {
 	border: dashed black 1px;	
+}
+
+.ui-dform-radiobuttons{
+	display : block;
+		
+}
+
+.ui-dform-radio{
 }

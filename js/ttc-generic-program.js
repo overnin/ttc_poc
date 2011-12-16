@@ -1,108 +1,209 @@
 var program = {"program": [ 
-				"name", 
-				"customer",  
-				"shortcode",
-				"country",
-				"participants",
-				"dialogues",
-				],
-			"name" : "text",
-			"customer": "text",
-			"shortcode" : "text",
-			"participants":["add-participant"],
-			"add-group":"button",
-			"add-participant":"button",
-			"participant":["phone","name"],
-			"phone":"text",
-			"country": "text",
-			"dialogues": ["add-dialogue"],
-			"add-dialogue":"button",
-			"dialogue": ["name","type","interactions","dialogue_id"],
-			"dialogue_id": "hidden",	
-			"interactions":["add-interaction"],
-			"interaction":["content","type","schedule_type","interaction_id"],
-			"interaction_id":"hidden",
-			"add-interaction":"button",
-			"announcement": ["content","name","schedule_type"],
-			"question": ["content","keyword", "schedule_type",["answer"]],
-			"answer":["keyword","feedback","action"],
-			"id":"text",
-			"schedule_type":"text",
-			"type":"text",
-			"content":"text",
-			"date": "text",
-			"time": "text",
-			"keyword":"text",
-			"action":"text",
-			"feedback":"text"
-			};
-	
+		"name", 
+		"customer",  
+		"shortcode",
+		"country",
+		"participants",
+		"dialogues",
+		],
+	"name" : "text",
+	"customer": "text",
+	"shortcode" : "text",
+	"participants":["add-participant"],
+	"add-group":"button",
+	"add-participant":"button",
+	"participant":["phone","name"],
+	"phone":"text",
+	"country": "text",
+	"dialogues": ["add-dialogue"],
+	"add-dialogue":"button",
+	"dialogue": ["name","type","interactions","dialogue_id"],
+	"dialogue_id": "hidden",	
+	"interactions":["add-interaction"],
+	"interaction":["radio-type-interaction","radio-type-schedule","interaction_id"],
+	"interaction_id":"hidden",
+	"add-interaction":"button",
+	"announcement": ["content"],
+	"question-answer": ["content","keyword", "add-answer"],
+	"add-answer": "button",
+	"answer": ["choice","feedback", "action"],
+	"choice":"text",
+	"action":"text",
+	"add-request-reply":'button',
+	"request-reply":["keyword","feedback","action"],
+	"id":"text",
+	"type":"text",
+	"radio-type-interaction":"radiobuttons",
+	"type-interaction": {"announcement":"Announcement","question-answer":"Question","request-response":"Request-Response"},
+	"radio-type-schedule":"radiobuttons",
+	"type-schedule": {"immediately":"Immediately","fixedtime":"Fixed time","delta":"Wait"},
+	"content":"text",
+	"date": "text",
+	"fixedtime":["time"],
+	"delta":["time"],
+	"time": "text",
+	"keyword":"text",
+	"action":"text",
+	"feedback":"text"
+};
 
+function saveFormOnServer(){
+		
+	var formData = form2js('generic-worker-form-dynamic', '.', true);
+	//alert();
+	var indata= "description="+JSON.stringify(formData, null, '\t');
+		
+	$("#testArea").text(indata);
+		
+	$.get('create_ttc_worker.php',indata, function(data) {
+		$("#result").html(data);
+	});
+}
+	
 
 function clickBasicButton(){
 					
 	//alert("click on add element "+$(this).prev('legend'));
 	var id = $(this).prevAll("fieldset").length;
-	var parentLabel = $(this).attr('label');
+	var eltLabel = $(this).attr('label');
 	var tableLabel = $(this).parent().attr('name');
+	var parent = $(this).parent();
 	
-	var html = "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]'>";
-	html = html + "<legend class='ui-dform-legend'>"+$(this).attr('label')+"</legend>";
-	if (isArray(program[parentLabel])){
-		program[$(this).attr('label')].forEach(function(item) {
-			if (isArray(program[item])) {
-					html = html + "<fieldset class='ui-dform-fieldset' name='"+tableLabel+"["+id+"]."+item+"'><legend class='ui-form-legend'>"+item+"</legend>"
-					if (program[program[item][0]]=="button"){
-						html = html + "<button class='ui-dform-addElt' type='button' label='"+program[item][0].substring(4)+"'>add "+program[item][0].substring(4)+"</button>"
-					}
-					html = html + "</fieldset>"
-			}else if (program[item]=="button") {
-				html = html + "<button class='ui-dform-addElt' type='button' label='"+item.substring(4)+"'>add "+item.substring(4)+"</button>"
-			}else if (program[item]=="hidden") {
-				html = html + "<input type="+program[item]+" name='"+tableLabel+"["+id+"]."+item+"' value='"+id+"'></input>"
-			}else{
-				html = html + "<label class='ui-dform-label'>"+item+"</label><input type="+program[item]+" name='"+tableLabel+"["+id+"]."+item+"'></input>"
-			}
-		});
-	}else{
-		html = html + "<label class='ui-dform-label'>"+parentLabel+"</label><input type='text' name='"+tableLabel+"."+parentLabel+"["+id+"]'></input>"
-	}
-	html = html + "</fieldset>";
-	//$(this).after($.dform.createElement({"type":"removeElt"}));
-	//alert("adding "+html);
-	if ($(this).prevAll("fieldset").length)
-	{
-		//alert("there is a fieldset")
-		$(this).prevAll("fieldset").first().after(html);
-	}else{
-		//alert("no fieldset")
-		if($(this).prevAll("input").length) {
-			$(this).prevAll("input").first().after(html);
-		}else {
-			$(this).prevAll("legend").after(html);
-		}
-	}
+	var expandedElt = {"type":"fieldset","name":tableLabel+"["+id+"]","caption":eltLabel,"elements":[]}
+		
+	configToForm(eltLabel, expandedElt,tableLabel+"["+id+"]");
 	
+	$(parent).formElement(expandedElt);
+	
+	$(this).clone().appendTo($(parent));
+	$(this).remove();
+	
+	activeForm();
+	
+};
+
+function activeForm(){
 	$.each($('.ui-dform-addElt'),function(item,value){
 			if (!$.data(value,'events')) {
 				$(value).click(clickBasicButton);
 			}
 	});
-	
-	//$(".ui-dform-addElt").each(function(){click(clickBasicButton)
-	//
-	//	$(this).prev().after($(this).prev().prev().clone());
+	$.each($("input[name*='type-interaction']"),function (key, elt){
+			if (!$.data(elt,'events')){	
+				$(elt).change(updateRadioButtonSubmenu);
+			};
+	});
+	$.each($("input[name*='type-schedule']"),function (key, elt){
+			if (!$.data(elt,'events')){	
+				$(elt).change(updateRadioButtonSubmenu);
+			};
+	});
 }
 
 
- function isArray(obj) {
-        	//returns true is it is an array
-        	//alert("is object an array "+obj)
-        	if (obj.constructor.toString().indexOf("Array") == -1)
-        		return false;
-        	else
-        		return true;
-        };
+function isArray(obj) {
+	if (obj.constructor.toString().indexOf("Array") == -1)
+		return false;
+	return true;
+};
+        
+function updateRadioButtonSubmenu() {
+	//var elt = event.currentTarget;
+	var elt = this;
+	var box = $(elt).parent().children("fieldset"); 
+	if (box.length){
+		$(box).remove();
+	}
+	
+	box = {"type":"fieldset","elements":[]};
+	
+	configToForm($(elt).attr('value'), box,$(elt).parent().parent().attr('name'));
+	
+	$(elt).parent().formElement(box);
+	
+	activeForm();
+};
+
+
+function configToForm(item,elt,id_prefix,configTree){
+	program[item].forEach(function (sub_item){
+			//alert("for "+sub_item);
+			if (!isArray(program[sub_item]))
+			{
+				//alert("add item ");
+				if (program[sub_item]=="button"){
+					var label = sub_item.substring(4);
+					//populate form
+					if (configTree && configTree.length>0){
+						var i = 0;
+						configTree.forEach(function (configElt){
+								var myelt = {
+									"type":"fieldset",
+									"caption": label +" "+ i,
+									"name": id_prefix+"["+i+"]",
+									"elements": []
+								};
+								configToForm(label,myelt,id_prefix+"["+i+"]",configElt);
+								i = i + 1;
+								elt["elements"].push(myelt);
+						});
+						
+					}
+					elt["elements"].push({
+						"type":"addElt",
+						"alert":"add message",
+						"label": label
+					});
+				} else {
+					if (program[sub_item]=="radiobuttons"){
+						var radio_type = sub_item.substring(6);
+					
+						elt["elements"].push(
+						{
+							"name":id_prefix+"."+radio_type,
+							"caption": label,
+							"type": program[sub_item],
+							//"class": "labellist",
+							"options": program[radio_type] 
+						});
+					
+						
+					}else{	
+						var eltValue = "";
+						if (configTree) {
+							eltValue = configTree[sub_item];
+						}
+						var label = null;
+						if (program[sub_item]!="hidden"){
+							label = sub_item;
+						}
+						elt["elements"].push(
+							{
+								"name":id_prefix+"."+sub_item,
+								"caption": label,
+								"type": program[sub_item],
+								"value": eltValue
+							});
+					}
+				}
+			}else{
+				//alert("add fieldset "+sub_item)
+				var myelt = {
+					"type":"fieldset",
+					"caption": sub_item,
+					"name": id_prefix+"."+sub_item,
+					"elements": []
+				};
+				//alert("start recursive call "+sub_item);
+				if (configTree) {
+					configToForm(sub_item,myelt,id_prefix+"."+sub_item, configTree[sub_item]);
+				} else {
+					configToForm(sub_item,myelt,id_prefix+"."+sub_item);
+				}
+				elt["elements"].push(myelt);
+		}
+	});
+};
 
 
 function fromBackendToFrontEnd(configFile) {
@@ -136,12 +237,8 @@ function fromBackendToFrontEnd(configFile) {
 	});
 		
 	
-	//var test = ""
-	//program["program"].forEach(function(item){test= test+item});
-	//alert("program contains"+test);
-	
 	var myform = {
-		"action": "javascript:test()",
+		"action": "javascript:saveFormOnServer()",
 		"method": "post",
                 "elements": 
                 [{
@@ -152,106 +249,11 @@ function fromBackendToFrontEnd(configFile) {
         
         
         
-        function configToForm(item,elt,id_prefix,configTree){
-        	program[item].forEach(function (sub_item){
-        			//alert("for "+sub_item);
-        			if (!isArray(program[sub_item]))
-        			{
-        				//alert("add item ");
-        				if (program[sub_item]=="button"){
-        					var label = sub_item.substring(4);
-        					if (configTree && configTree.length>0){
-        						var i = 0;
-        						
-        						configTree.forEach(function (configElt){
-        								var myelt = {
-        									"type":"fieldset",
-        									"caption": label +" "+ (i + 1),
-        									"name": id_prefix+"["+i+"]",
-        									"elements": []
-        								};
-        								configToForm(label,myelt,id_prefix+"["+i+"]",configElt);
-        								i = i + 1;
-        								elt["elements"].push(myelt);
-        						});
-        						
-        					}
-						elt["elements"].push({
-        						"type":"addElt",
-        						"alert":"add message",
-        						"label": label
-        					});
-					} else {
-						var eltValue = "";
-						if (configTree) {
-							eltValue = configTree[sub_item];
-						}
-						var label = null;
-						if (program[sub_item]!="hidden"){
-							label = sub_item;
-						}
-						elt["elements"].push(
-							{
-								"name":id_prefix+"."+sub_item,
-								"caption": label,
-								"type": program[sub_item],
-								"value": eltValue
-							});	
-					}
-        			}else{
-        				//alert("add fieldset "+sub_item)
-        				var myelt = {
-        					"type":"fieldset",
-        					"caption": sub_item,
-        					"name": id_prefix+"."+sub_item,
-        					"elements": []
-        				};
-        				//alert("start recursive call "+sub_item);
-        				if (configTree) {
-        					configToForm(sub_item,myelt,id_prefix+"."+sub_item, configTree[sub_item]);
-        				} else {
-       						configToForm(sub_item,myelt,id_prefix+"."+sub_item);
-        				}
-        				elt["elements"].push(myelt);
-        		}
-        	});
-        }
+        
         
         //echo "something"
         configToForm("program",myform, "program", configFile);
         
-        /*
-        program["program"].forEach(function(item){
-        		if (!isArray(program[item]))
-        		{
-        			//alert("add item "+item);
-        			myform["elements"].push(
-        			{
-        			"name":"program."+item,
-        			"caption": item,
-        			"type": program[item]
-        			});
-        		}
-        	else 
-        	{
-//        		alert("array type "+item);
-        		var myelt = {
-        			"type":"fieldset",
-        			"caption": item,
-        			"name": item,
-          			"elements": []
-        			};
-//      			alert("array is "+program[item]);
-        		program[item].forEach(function (elt) {
-        				myelt["elements"].push({
-        						"type":"addElt",
-        						"alert":"add message",
-        						"label": elt
-        				});
-        			});
-        		myform["elements"].push(myelt);
-        	}
-        });*/
           
         myform["elements"].push({
                         "type": "submit",

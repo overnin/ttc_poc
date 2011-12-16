@@ -7,7 +7,11 @@
 	
 	<script src="lib/jqueryui/js/jquery-1.6.2.min.js"></script>
 	<script src="lib/jqueryui/js/jquery-ui-1.8.16.custom.min.js"></script>
-	<script src="lib/dform/jquery.dform-0.1.4.min.js"></script>
+	<!--<script src="lib/dform/jquery.dform-0.1.4.min.js"></script>-->
+	<script src="lib/dform/src/dform.js"></script>
+	<script src="lib/dform/src/dform.converters.js"></script>
+	<script src="lib/dform/src/dform.extensions.js"></script>
+	<script src="lib/dform/src/dform.subscribers.js"></script>
 	<script src="js/ttc-generic-program.js"></script>
 	<script type="text/javascript" src="lib/form2js/src/form2js.js"></script>
 	<script>
@@ -17,6 +21,16 @@
 					var response = $.parseJSON(data);
 					//alert("get the program from the server"+response['ok']);
 					$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd(response['msg']['program']));
+					$.each($("input[name*='type-interaction']"),function (key, elt){
+							if (!$.data(elt,'events')){	
+								$(elt).change(updateRadioButtonSubmenu);
+							};
+					});
+					$.each($("input[name*='type-schedule']"),function (key, elt){
+							if (!$.data(elt,'events')){	
+								$(elt).change(updateRadioButtonSubmenu);
+							};
+					});
 			});
 			
 	});
@@ -45,6 +59,11 @@
 	<h3>Create a new TTC generci worker (dynamic form)</h3>
 	
 	<form var="" id="generic-worker-form-dynamic"></form>
+	<p>data to be send</p>
+	<pre><code id="testArea">
+	</code></pre>
+	<p>result:</p>
+	<div id="result"></div>
 	
 </body
 
