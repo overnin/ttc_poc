@@ -4,6 +4,7 @@ var program = {"program": [
 		"shortcode",
 		"country",
 		"participants",
+		"requests-responses",
 		"dialogues",
 		],
 	"name" : "text",
@@ -17,7 +18,7 @@ var program = {"program": [
 	"country": "text",
 	"dialogues": ["add-dialogue"],
 	"add-dialogue":"button",
-	"dialogue": ["name","type","interactions","dialogue_id"],
+	"dialogue": ["name","interactions","dialogue_id"],
 	"dialogue_id": "hidden",	
 	"interactions":["add-interaction"],
 	"interaction":["radio-type-interaction","radio-type-schedule","interaction_id"],
@@ -25,16 +26,26 @@ var program = {"program": [
 	"add-interaction":"button",
 	"announcement": ["content"],
 	"question-answer": ["content","keyword", "add-answer"],
+	"requests-responses":["add-request-response"],
+	"add-request-response":"button",
+	"request-response":["keyword","add-answer"],	
 	"add-answer": "button",
-	"answer": ["choice","feedback", "action"],
+	"answer": ["choice","feedback", "add-action"],
+	"radio-type-action": "radiobuttons",
+	"add-action":"button",
+	"action":["radio-type-action"],
+	"type-action": {"tagging":"Tag participant", "goingto":"Go to"},
 	"choice":"text",
-	"action":"text",
+	"tagging":["tag"],
+	"tag":"select",
+	"goingto":["goto"],
+	"goto":"select",
 	"add-request-reply":'button',
-	"request-reply":["keyword","feedback","action"],
+	"request-reply":["keyword","feedback","radio-type-action"],
 	"id":"text",
 	"type":"text",
 	"radio-type-interaction":"radiobuttons",
-	"type-interaction": {"announcement":"Announcement","question-answer":"Question","request-response":"Request-Response"},
+	"type-interaction": {"announcement":"Announcement","question-answer":"Question"},
 	"radio-type-schedule":"radiobuttons",
 	"type-schedule": {"immediately":"Immediately","fixedtime":"Fixed time","delta":"Wait"},
 	"content":"text",
@@ -43,7 +54,6 @@ var program = {"program": [
 	"delta":["time"],
 	"time": "text",
 	"keyword":"text",
-	"action":"text",
 	"feedback":"text"
 };
 
@@ -67,6 +77,11 @@ function clickBasicButton(){
 	var id = $(this).prevAll("fieldset").length;
 	var eltLabel = $(this).attr('label');
 	var tableLabel = $(this).parent().attr('name');
+	//in case of radio button the parent name need the name to be added
+	var r = new RegExp("\\]$","g");
+	if (r.test(tableLabel)){
+		tableLabel = tableLabel +"."+ eltLabel;
+	}
 	var parent = $(this).parent();
 	
 	var expandedElt = {"type":"fieldset","name":tableLabel+"["+id+"]","caption":eltLabel,"elements":[]}
@@ -81,6 +96,33 @@ function clickBasicButton(){
 	activeForm();
 	
 };
+
+function getSelectableGotTo() {
+	//get dialogue elements id or name
+	var list = [];
+	$(":regex(name,program.dialogues\\[*\\d\\]$)").each(function(index, elt){
+			list = list.concat([$(elt).attr('name')]);
+	})
+	return list;
+}
+
+function populateSelectableGoTo(){
+	var selectableGoTo = getSelectableGotTo();
+	//var selectableGoTo = {};
+	//selectableGoTo["value"] = "option1";
+	//selectableGoTo["html"] = "Option1";
+	//selectableGoTo["type"] = "option";
+	$(":regex(name,goto$)").each(function(index, elt){
+			$(elt).empty();
+			selectableGoTo.forEach(function(item){
+					var toInsert = {};
+					toInsert["type"] = "option";
+					toInsert["value"] = item;
+					toInsert["html"] = item;
+					$(elt).formElement(toInsert);
+			});
+	});
+}
 
 function activeForm(){
 	$.each($('.ui-dform-addElt'),function(item,value){
@@ -98,6 +140,12 @@ function activeForm(){
 				$(elt).change(updateRadioButtonSubmenu);
 			};
 	});
+	$.each($("input[name*='type-action']"),function (key, elt){
+			if (!$.data(elt,'events')){	
+				$(elt).change(updateRadioButtonSubmenu);
+			};
+	});
+	populateSelectableGoTo();
 }
 
 
@@ -106,16 +154,30 @@ function isArray(obj) {
 		return false;
 	return true;
 };
+
+jQuery.expr[':'].regex = function(elem, index, match) {
+    var matchParams = match[3].split(','),
+        validLabels = /^(data|css):/,
+        attr = {
+            method: matchParams[0].match(validLabels) ? 
+                        matchParams[0].split(':')[0] : 'attr',
+            property: matchParams.shift().replace(validLabels,'')
+        },
+        regexFlags = 'ig',
+        regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g,''), regexFlags);
+    return regex.test(jQuery(elem)[attr.method](attr.property));
+}
         
 function updateRadioButtonSubmenu() {
 	//var elt = event.currentTarget;
 	var elt = this;
 	var box = $(elt).parent().next("fieldset"); 
+	var name = $(elt).parent().parent().attr("name");
 	if (box){
 		$(box).remove();
 	} 
 	
-	var newContent = {"type":"fieldset","elements":[]};
+	var newContent = {"type":"fieldset","name":name,"elements":[]};
 	var name = $(elt).parent().parent().attr('name');
 	configToForm($(elt).attr('value'), newContent, name);
 	
@@ -132,10 +194,15 @@ function updateRadioButtonSubmenu() {
 };
 
 
+
+
 function configToForm(item,elt,id_prefix,configTree){
 	if (!program[item]){
 		elt['type']=null;	
 		return;
+	}
+	if (!isArray(program[item])){
+		alert("structure is wrong, no array for: "+item);
 	}
 	program[item].forEach(function (sub_item){
 			//alert("for "+sub_item);
@@ -150,7 +217,7 @@ function configToForm(item,elt,id_prefix,configTree){
 						configTree.forEach(function (configElt){
 								var myelt = {
 									"type":"fieldset",
-									"caption": label +" "+ i,
+									"caption": label, //+" "+ i,
 									"name": id_prefix+"["+i+"]",
 									"elements": []
 								};
