@@ -21,14 +21,15 @@
 				var element = $(this);
 				var action = element.attr("action");
 				//alert("delete "+element.attr("id"))
-				var dataString = "action="+action+"&program="+element.attr("var")
+				var dataString = "action="+action+"&id="+element.attr("var")
 				$.ajax({
-						type: "POST",
-						url: "runmongo.php",
+						type: "GET",
+						url: "ajax.php",
 						data: dataString,
 						cache: false,
 						success: function(html){
 							alert("data deleted, refresh the page!" + html);
+							window.setTimeout('location.reload()', 1000)
 						}
 				});
 		});
@@ -266,9 +267,9 @@
 			foreach ($cursor as $program){
 				echo "<div class='box'> ";
 				echo "<div>".$program['name'];
-				echo "<input var='".$program['name']."' class='action_program' action='delete_feprogram' type='button' value='delete program'/>";
+				echo "<input var='".$program['_id']."' class='action_program' action='delete' type='button' value='delete program'/>";
 				echo "<a href='feprogram.php?id=".$program['_id']."'>edit</a>";
-				echo "<input var='".$program['name']."' class='add_feparticipant' type='button' value='add participant'/>";
+				echo "<input var='".$program['_id']."' class='add_feparticipant' type='button' value='add participant'/>";
 				echo "</div>";
 				echo "<div>->Status: ".$program['status'];
 				if ($program['status'] == "NotValide") {

@@ -17,24 +17,41 @@
 	<script>
 	$(function(){
 			var program_id = $.getUrlVar('id');
+			//$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd());
+			updateListOfProgram();
 			$.get('ajax.php',"action=get&id="+program_id, function(data){
 					var response = $.parseJSON(data);
 					//alert("get the program from the server"+response['ok']);
-					$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd(response['msg']['program']));
-					$.each($("input[name*='type-interaction']"),function (key, elt){
-							if (!$.data(elt,'events')){	
-								$(elt).change(updateRadioButtonSubmenu);
-							};
-					});
-					$.each($("input[name*='type-schedule']"),function (key, elt){
-							if (!$.data(elt,'events')){	
-								$(elt).change(updateRadioButtonSubmenu);
-							};
-					});
+					var id = response['msg']['_id']['$id'];
+					$("#generic-worker-form-dynamic").empty();
+					$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd(response['msg']['program'],response['msg']['_id']['$id']));
+					activeForm();		
 			});
 			
 	});
+	
+	function updateListOfProgram(){
+		$.get('ajax.php',"action=getprogramlist", function(data){
+				$("#program-list").empty();
+				var response = $.parseJSON(data);
+				var html = "";
+				if (response['ok']){
+					response['msg'].forEach(function(program){
+						html = html + "<a href='feprogram.php?id="+program['id']+"'>"+program['name']+"</a><br/>";
+					});
+				}
+				$("#program-list").html(html);
+		});
+	};
 
+	function createNew() {
+		$("#generic-worker-form-dynamic").empty();
+		$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd());
+	}
+	
+	function delete() {
+	}
+	
 	$.extend({
 			getUrlVars: function(){
 				var vars = [], hash;
@@ -56,8 +73,10 @@
 
 <body>
 	
-	<h3>Create a new TTC generci worker (dynamic form)</h3>
-	
+	<h3>List of program on the server</h3>
+	<div id="program-list"></div>
+	<h3>View one program</h3>
+	<button id="create-new-button" onclick="javascript:createNew()" label="Create New">Create New</button>
 	<form var="" id="generic-worker-form-dynamic"></form>
 	<p>data to be send</p>
 	<pre><code id="testArea">

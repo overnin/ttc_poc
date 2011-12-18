@@ -25,23 +25,35 @@ var program = {"program": [
 	"interaction_id":"hidden",
 	"add-interaction":"button",
 	"announcement": ["content"],
-	"question-answer": ["content","keyword", "add-answer"],
+	"question-answer": ["content", "answers"],
 	"requests-responses":["add-request-response"],
 	"add-request-response":"button",
-	"request-response":["keyword","add-answer"],	
+	"request-response":["content","responses","actions"],
+	"radio-type-routing":"radiobuttons",
+	"type-routing":{"keyword-routing": "Keyword routing","phone-routing":"Phone number routing (all incomming message from participant will be root to this program)"},	
+	"keyword-routing":["keyword"],
+	"answers":["add-answer"],
 	"add-answer": "button",
-	"answer": ["choice","feedback", "add-action"],
+	"answer": ["choice","feedbacks", "actions"],
+	"feedbacks":["add-feedback"],
+	"add-request":"button",
+	//"request": ["content","responses", "actions"],
+	"responses":["add-response"],
+	"actions":["add-action"],
+	"add-response":"button",
+	"response":["content"],
 	"radio-type-action": "radiobuttons",
 	"add-action":"button",
+	"add-feedback":"button",
 	"action":["radio-type-action"],
-	"type-action": {"tagging":"Tag participant", "goingto":"Go to"},
+	"type-action": {"tagging":"Tag participant", "goingto":"Go to a dialogue"},
 	"choice":"text",
 	"tagging":["tag"],
 	"tag":"select",
 	"goingto":["goto"],
 	"goto":"select",
 	"add-request-reply":'button',
-	"request-reply":["keyword","feedback","radio-type-action"],
+	"request-reply":["keyword","add-feedback","radio-type-action"],
 	"id":"text",
 	"type":"text",
 	"radio-type-interaction":"radiobuttons",
@@ -54,18 +66,18 @@ var program = {"program": [
 	"delta":["time"],
 	"time": "text",
 	"keyword":"text",
-	"feedback":"text"
+	"feedback":["content"]
 };
 
 function saveFormOnServer(){
 		
 	var formData = form2js('generic-worker-form-dynamic', '.', true);
 	//alert();
-	var indata= "description="+JSON.stringify(formData, null, '\t');
+	var indata= JSON.stringify(formData, null, '\t');
 		
 	$("#testArea").text(indata);
 		
-	$.get('create_ttc_worker.php',indata, function(data) {
+	$.get('ajax.php',"action=save&description="+indata, function(data) {
 		$("#result").html(data);
 	});
 }
@@ -90,8 +102,13 @@ function clickBasicButton(){
 	
 	$(parent).formElement(expandedElt);
 	
-	$(this).clone().appendTo($(parent));
-	$(this).remove();
+	//need to move down all the button
+	/*$(this).clone().appendTo($(parent));
+	$(this).remove();*/
+	$(this).parent().children("button").each(function(index,elt){
+		$(elt).clone().appendTo($(parent));
+		$(elt).remove();	
+	})
 	
 	activeForm();
 	
@@ -145,6 +162,11 @@ function activeForm(){
 				$(elt).change(updateRadioButtonSubmenu);
 			};
 	});
+	$.each($("input[name*='type-routing']"),function (key, elt){
+			if (!$.data(elt,'events')){	
+				$(elt).change(updateRadioButtonSubmenu);
+			};
+	});
 	populateSelectableGoTo();
 }
 
@@ -173,11 +195,11 @@ function updateRadioButtonSubmenu() {
 	var elt = this;
 	var box = $(elt).parent().next("fieldset"); 
 	var name = $(elt).parent().parent().attr("name");
-	if (box){
+	if (box && $(box).attr('radiochildren')){
 		$(box).remove();
 	} 
 	
-	var newContent = {"type":"fieldset","name":name,"elements":[]};
+	var newContent = {"type":"fieldset","radiochildren":"radiochildren","name":name,"elements":[]};
 	var name = $(elt).parent().parent().attr('name');
 	configToForm($(elt).attr('value'), newContent, name);
 	
@@ -204,6 +226,7 @@ function configToForm(item,elt,id_prefix,configTree){
 	if (!isArray(program[item])){
 		alert("structure is wrong, no array for: "+item);
 	}
+	var rabioButtonAtThisIteration = false;
 	program[item].forEach(function (sub_item){
 			//alert("for "+sub_item);
 			if (!isArray(program[sub_item]))
@@ -212,16 +235,26 @@ function configToForm(item,elt,id_prefix,configTree){
 				if (program[sub_item]=="button"){
 					var label = sub_item.substring(4);
 					//populate form
-					if (configTree && configTree.length>0){
+					if (rabioButtonAtThisIteration && configTree && configTree[label]){
+						tmpConfigTree = configTree[label];
+					} else {
+						tmpConfigTree = configTree;
+					};
+					if (tmpConfigTree && tmpConfigTree.length>0){
 						var i = 0;
-						configTree.forEach(function (configElt){
+						tmpConfigTree.forEach(function (configElt){
+								if (rabioButtonAtThisIteration) {
+									tmpIdPrefix = id_prefix + "."+label;
+								}else{
+									tmpIdPrefix = id_prefix;
+								}
 								var myelt = {
 									"type":"fieldset",
 									"caption": label, //+" "+ i,
-									"name": id_prefix+"["+i+"]",
+									"name": tmpIdPrefix+"["+i+"]",
 									"elements": []
 								};
-								configToForm(label,myelt,id_prefix+"["+i+"]",configElt);
+								configToForm(label,myelt,tmpIdPrefix+"["+i+"]",configElt);
 								i = i + 1;
 								elt["elements"].push(myelt);
 						});
@@ -234,6 +267,7 @@ function configToForm(item,elt,id_prefix,configTree){
 					});
 				} else {
 					if (program[sub_item]=="radiobuttons"){
+						rabioButtonAtThisIteration = true;
 						var radio_type = sub_item.substring(6);
 					        var checkedRadio = {};
 					        var checkedItem;
@@ -259,10 +293,16 @@ function configToForm(item,elt,id_prefix,configTree){
 							"options": checkedRadio 
 						});
 						if (checkedItem){
-							var box = {"type":"fieldset","elements":[]};
-							configToForm(checkedItem, box,id_prefix,configTree);
-							if (box['type'])
-								elt["elements"].push(box);
+							if (program[checkedItem]){
+								var box = {
+									"type":"fieldset",
+									"radiochildren":"radiochildren",
+									"elements":[]
+								};
+								configToForm(checkedItem, box,id_prefix,configTree);
+								if (box['type'])
+									elt["elements"].push(box);
+							};
 						}
 					}else{	
 						var eltValue = "";
@@ -302,7 +342,7 @@ function configToForm(item,elt,id_prefix,configTree){
 };
 
 
-function fromBackendToFrontEnd(configFile) {
+function fromBackendToFrontEnd(configFile, id) {
 	//alert("function called");
 	
 	$.dform.addType("addElt", function(option) {
@@ -337,10 +377,17 @@ function fromBackendToFrontEnd(configFile) {
 		"action": "javascript:saveFormOnServer()",
 		"method": "post",
                 "elements": 
-                [{
+                [	
+                	{
+                		"type":"hidden",
+                		"value": id,
+                		"name":"id"
+                	},
+                	{
                         "type": "p",
                         "html": "Program"
-                }]
+                        }
+                ]
         };
         
         configToForm("program",myform, "program", configFile);

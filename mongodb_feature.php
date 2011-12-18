@@ -65,7 +65,7 @@ function removeProgram($program_name){
 	$db->dropCollection($program_name.'_logs');
 }
 
-function removeFrontEndProgram($program_name){
+function deleteFrontEndProgram($program_id){
 	$connection = new Mongo();
 	
 	//$db->setSlaveOkay(true);
@@ -74,7 +74,7 @@ function removeFrontEndProgram($program_name){
 	//$db->program->find()->getNext();
 	//echo 
 	
-	$cursor = $db->feprograms->remove(array("name" => $program_name));
+	$cursor = $db->feprograms->remove(array("_id" => new MongoID($program_id)));
 }
 
 function getFrontEndPrograms(){
@@ -97,6 +97,23 @@ function getFrontEndPrograms(){
 	}*/	
 }
 
+function getFrontEndProgramList(){
+	$connection = new Mongo();
+
+	$db = $connection->selectDB('dev');
+	$result = array();	
+	
+	foreach ($db->feprograms->find() as $cursor){
+		//echo $cursor['_id'];
+		$result[] = array (
+			'id' => $cursor['_id']->{'$id'},
+			'name' => $cursor['program']['name']
+			);	
+	};
+	
+	return $result;
+}
+
 function getFrontEndProgram($program_id){
 	
 	$connection = new Mongo();
@@ -106,9 +123,9 @@ function getFrontEndProgram($program_id){
 	// $db->feprograms->findOne(array("name" => "toto"));
 }
 
-function saveFrontEndProgram($program){
+function saveFrontEndProgram($program,$id=null){
 
-	echo "start saving in database: ".$program->name;	
+	//echo "start saving in database: ".$program->name;	
 	$connection = new Mongo();
 
 	//$db->setSlaveOkay(true);
@@ -117,16 +134,28 @@ function saveFrontEndProgram($program){
 	//$db->program->find()->getNext();
 	//echo 
 	
-	$feprogram = array("name"=>$program->name,
-		"program"=>$program,
-		"status"=>"NotValide", 
-		"start_date"=>"",
-		"end_date"=>""
-		);
+	if ($id){
+		$feprogram = array(
+			"program"=>$program
+			);
+		$db->feprograms->update( array("_id" => new MongoID($id)),array('$set'=> array('program'=> $feprogram['program'])));
+		return "program has been updated";
+	}else{
+		if (!property_exists($program,'name')) {
+			return "name not defined, program not saved";
+		}
+		
+		$feprogram = array(//"name"=>$program->name,
+			"program"=>$program,
+			"status"=>"NotValide", 
+			"start_date"=>"",
+			"end_date"=>""
+			);
+		$db->feprograms->insert($feprogram);
+		return "program has been saved";
+	}
 	
-	$db->feprograms->insert($feprogram);
-	
-	echo "feprogram saved";
+	//echo "feprogram saved";
 }
 	
 
