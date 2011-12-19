@@ -48,6 +48,34 @@ function getAllProcessInfo() {
 	
 }
 
+function getProcessInfo($name) {
+	require_once('lib/xmlrpc-3.0.0.beta/xmlrpc.inc');
+	
+	$val = array(new xmlrpcval('echo_worker:'.$name.'_1'));
+	
+	$f=new xmlrpcmsg('supervisor.getProcessInfo', $val);
+	
+	$c=new xmlrpc_client("/RPC2", "localhost",9010);
+	
+	//$c->setDebug(1);
+	
+	$r=&$c->send($f);
+	
+	if(!$r->faultCode())
+	{
+		$arr = php_xmlrpc_decode($r->value());
+		return $arr->state;
+	}
+	else
+	{
+		return "Not registered";	
+	}
+	
+}
+
+
+
+
 function startWorker($config){
 	require_once('lib/xmlrpc-3.0.0.beta/xmlrpc.inc');
 	

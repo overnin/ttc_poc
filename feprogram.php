@@ -39,9 +39,34 @@
 				var html = "";
 				if (response['ok']){
 					response['msg'].forEach(function(program){
-						html = html + "<div id="+program['id']+" class='program-control'>"
+						html = html + "<div class='box' id="+program['id']+" class='program-control'>"
 						html = html + "<a href='feprogram.php?id="+program['id']+"'>View "+program['name']+"</a>"
 						html = html + "<button class='delete-program' type='button' >delete</button>"
+						html = html + "<button class='start-program' type='button' >start</button>"
+						html = html + "<button class='pause-program' type='button' >pause</button>"
+						if ("process-state" in program){
+							html = html + "<div>Process state: "+program['process-state']+"</div>";	
+						} else {
+							html = html + "<div>No process status available</div>";
+						}
+						if ("action-log" in program) {
+							html = html + "<div>Last user actions:"+program['action-log']['action']+" at "+program['action-log']['time']+"</div>";
+						} else {
+							html = html + "<div>Last user actions: not available</div>"
+						}
+						if ("send-log" in program) {
+							html = html + "<div>Last message send:"+program['send-log']['msg']+" at "+program['send-log']['time']+"</div>";
+							html = html + "<div>Total message send:"+program['send-log']['total']+"</div>";
+						} else {
+							html = html + "<div>Last message send: not available</div>"
+						} 
+						if ("schedule" in program) {
+							html = html + "<div>Next scheduled message to:"+program['schedule']['participant_phone']+" at "+program['schedule']['time']+"</div>";
+							html = html + "<div>Total scheduled message:"+program['schedule']['total']+"</div>";
+						} else {
+							html = html + "<div>Last message scheduled: not available</div>"
+						} 
+						
 						html = html + "</div>";
 					});
 				}
@@ -62,13 +87,25 @@
 		activeForm();	
 	}
 	
+	function startProgram(){
+		$.get('ajax.php',"action=start&id="+id, function(data){
+				var response = $.parseJSON(data);
+				updateFlash(response['msg']);
+		});
+	}
+	
 	function deleteProgram(id) {
 		$.get('ajax.php',"action=delete&id="+id, function(data){
 				var response = $.parseJSON(data);
-				$("#flash").empty();
-				$("#flash").html("the program has been deleted, the page is going to be refreshed.");
-				window.setTimeout('location.reload()', 2000)
+				updateFlash(response['msg']);
+				
 		});
+	}
+	
+	function updateFlash(msg){
+		$("#flash").empty();
+		$("#flash").html(msg + " The page is going to be refreshed.");
+		window.setTimeout('location.reload()', 2000);
 	}
 	
 	$.extend({
@@ -97,12 +134,8 @@
 	<button id="create-new-button" onclick="javascript:createNew()" label="Create New">Create New</button>
 	<h3>View one program</h3>
 	<form var="" id="generic-worker-form-dynamic"></form>
-	<p>data to be send</p>
 	<pre><code id="testArea">
 	</code></pre>
-	<p>result:</p>
-	<div id="result"></div>
-	
 </body
 
 </html>
