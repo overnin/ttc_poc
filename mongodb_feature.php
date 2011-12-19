@@ -115,8 +115,8 @@ function getFrontEndProgramList(){
 		
 		if ($sendlog) {
 			$result[$i]['send-log'] = array ( 
-				'send' => $sendlog['action'],
-				'time' => $sendlog['time'],
+				'send' => $sendlog['message']['content'],
+				'time' => $sendlog['datetime'],
 				'total' => $sendtotal
 				);
 		}
