@@ -17,3 +17,11 @@
 
 .ui-dform-radio{
 }
+
+.flash{
+	position:fixed;
+	top:30px;
+	right:5px;
+	border: solid black 1px;
+	background: yellow;
+}

@@ -78,7 +78,9 @@ function saveFormOnServer(){
 	$("#testArea").text(indata);
 		
 	$.get('ajax.php',"action=save&description="+indata, function(data) {
-		$("#result").html(data);
+		var response = $.parseJSON(data);
+		$("#flash").html("the program has been created, the page is going to be refreshed");
+		window.setTimeout('location.reload()', 2000)
 	});
 }
 	

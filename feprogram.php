@@ -22,10 +22,12 @@
 			$.get('ajax.php',"action=get&id="+program_id, function(data){
 					var response = $.parseJSON(data);
 					//alert("get the program from the server"+response['ok']);
-					var id = response['msg']['_id']['$id'];
-					$("#generic-worker-form-dynamic").empty();
-					$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd(response['msg']['program'],response['msg']['_id']['$id']));
-					activeForm();		
+					if (response['msg']){
+						//var id = response['msg']['_id']['$id'];
+						$("#generic-worker-form-dynamic").empty();
+						$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd(response['msg']['program'],response['msg']['_id']['$id']));
+						activeForm();	
+					};
 			});
 			
 	});
@@ -37,12 +39,22 @@
 				var html = "";
 				if (response['ok']){
 					response['msg'].forEach(function(program){
-						html = html + "<a href='feprogram.php?id="+program['id']+"'>"+program['name']+"</a><br/>";
+						html = html + "<div id="+program['id']+" class='program-control'>"
+						html = html + "<a href='feprogram.php?id="+program['id']+"'>View "+program['name']+"</a>"
+						html = html + "<button class='delete-program' type='button' >delete</button>"
+						html = html + "</div>";
 					});
 				}
 				$("#program-list").html(html);
+				activateUI();
 		});
 	};
+	
+	function activateUI(){
+		$('button.delete-program').click(function(){
+			deleteProgram($(this).parent().attr('id'));
+		});	
+	}
 
 	function createNew() {
 		$("#generic-worker-form-dynamic").empty();
@@ -50,7 +62,13 @@
 		activeForm();	
 	}
 	
-	function delete() {
+	function deleteProgram(id) {
+		$.get('ajax.php',"action=delete&id="+id, function(data){
+				var response = $.parseJSON(data);
+				$("#flash").empty();
+				$("#flash").html("the program has been deleted, the page is going to be refreshed.");
+				window.setTimeout('location.reload()', 2000)
+		});
 	}
 	
 	$.extend({
@@ -73,11 +91,11 @@
 </head>
 
 <body>
-	
+	<div id="flash" class="flash"></div>
 	<h3>List of program on the server</h3>
 	<div id="program-list"></div>
-	<h3>View one program</h3>
 	<button id="create-new-button" onclick="javascript:createNew()" label="Create New">Create New</button>
+	<h3>View one program</h3>
 	<form var="" id="generic-worker-form-dynamic"></form>
 	<p>data to be send</p>
 	<pre><code id="testArea">
