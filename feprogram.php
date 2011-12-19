@@ -47,6 +47,7 @@
 	function createNew() {
 		$("#generic-worker-form-dynamic").empty();
 		$("#generic-worker-form-dynamic").buildForm(fromBackendToFrontEnd());
+		activeForm();	
 	}
 	
 	function delete() {

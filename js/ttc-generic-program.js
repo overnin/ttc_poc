@@ -124,20 +124,26 @@ function getSelectableGotTo() {
 }
 
 function populateSelectableGoTo(){
+	
+	function doubleEscape(str){
+		return str.replace("[","\\\\[").replace("]","\\\\]").replace(".","\\\\.");
+	}	
+	
 	var selectableGoTo = getSelectableGotTo();
 	//var selectableGoTo = {};
 	//selectableGoTo["value"] = "option1";
 	//selectableGoTo["html"] = "Option1";
 	//selectableGoTo["type"] = "option";
 	$(":regex(name,goto$)").each(function(index, elt){
-			$(elt).empty();
 			selectableGoTo.forEach(function(item){
-					var toInsert = {};
-					toInsert["type"] = "option";
-					toInsert["value"] = item;
-					toInsert["html"] = item;
-					$(elt).formElement(toInsert);
-			});
+					if ($(elt).children('[value="'+doubleEscape(item)+'"]').length<=0){
+						var toInsert = {};
+						toInsert["type"] = "option";
+						toInsert["value"] = item;
+						toInsert["html"] = item;
+						$(elt).formElement(toInsert);
+					}
+				});
 	});
 }
 
@@ -304,6 +310,26 @@ function configToForm(item,elt,id_prefix,configTree){
 									elt["elements"].push(box);
 							};
 						}
+					}else if (program[sub_item]=="select") {
+						var eltValue = "";
+						if (configTree) {
+							eltValue = configTree[sub_item];
+						}
+						var label = null;
+						if (program[sub_item]!="hidden"){
+							label = sub_item;
+						}
+						elt["elements"].push(
+							{
+								"name":id_prefix+"."+sub_item,
+								"caption": label,
+								"type": program[sub_item],
+								"options": [ { 
+									"value": eltValue,
+									"html":eltValue,
+									"checked":"checked"
+								}]
+							});
 					}else{	
 						var eltValue = "";
 						if (configTree) {
