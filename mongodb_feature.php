@@ -92,8 +92,9 @@ function getFrontEndProgramList(){
 	$db = $connection->selectDB('dev');
 	$result = array();	
 	
+	$i = 0;
 	foreach ($db->feprograms->find() as $cursor){
-		$i = 0;//echo $cursor['_id'];
+		
 		$result[$i] = array (
 			'id' => $cursor['_id']->{'$id'},
 			'name' => $cursor['program']['name'],
@@ -131,7 +132,7 @@ function getFrontEndProgramList(){
 				'total' => $scheduletotal
 				);
 		}
-		
+		$i = $i + 1;
 	};
 	
 	return $result;

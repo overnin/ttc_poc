@@ -105,7 +105,7 @@
 	function updateFlash(msg){
 		$("#flash").empty();
 		$("#flash").html(msg + " The page is going to be refreshed.");
-		window.setTimeout('location.reload()', 2000);
+		//window.setTimeout('location.reload()', 2000);
 	}
 	
 	$.extend({
