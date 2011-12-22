@@ -25,7 +25,12 @@ var program = {"program": [
 	"interaction_id":"hidden",
 	"add-interaction":"button",
 	"announcement": ["content"],
-	"question-answer": ["content", "answers"],
+	"question-answer": ["content","radio-type-reminder", "answers"],
+	"radio-type-reminder":"radiobuttons",
+	"type-reminder":{"no-reminder":"No reminder","reminder":"Reminder"},
+	"reminder":["number","every"],
+	"number":"text",
+	"every":"text",
 	"requests-responses":["add-request-response"],
 	"add-request-response":"button",
 	"request-response":["content","responses","actions"],
@@ -57,13 +62,24 @@ var program = {"program": [
 	"id":"text",
 	"type":"text",
 	"radio-type-interaction":"radiobuttons",
-	"type-interaction": {"announcement":"Announcement","question-answer":"Question"},
+	"type-interaction": {
+		"announcement":"Announcement",
+		"question-answer":"Question"},
 	"radio-type-schedule":"radiobuttons",
-	"type-schedule": {"immediately":"Immediately","fixedtime":"Fixed time","delta":"Wait"},
+	"type-schedule": {
+		"immediately":"Immediately",
+		"fixed-time":"Fixed time",
+		"wait":"Wait previous interation to be send",
+		"wait-answer": "Wait previous question to be answered"},
 	"content":"text",
 	"date": "text",
-	"fixedtime":["time"],
-	"delta":["time"],
+	"fixed-time":["year","month","day","time"],
+	"year":"text",
+	"month":"text",
+	"day":"text",
+	"wait":["minutes"],
+	"wait-answer": ["minutes"],
+	"minutes":"text",
 	"time": "text",
 	"keyword":"text",
 	"feedback":["content"]
@@ -171,6 +187,11 @@ function activeForm(){
 			};
 	});
 	$.each($("input[name*='type-routing']"),function (key, elt){
+			if (!$.data(elt,'events')){	
+				$(elt).change(updateRadioButtonSubmenu);
+			};
+	});
+	$.each($("input[name*='type-reminder']"),function (key, elt){
 			if (!$.data(elt,'events')){	
 				$(elt).change(updateRadioButtonSubmenu);
 			};
@@ -340,6 +361,8 @@ function configToForm(item,elt,id_prefix,configTree){
 						var label = null;
 						if (program[sub_item]!="hidden"){
 							label = sub_item;
+						} else {
+							eltValue = id_prefix;	
 						}
 						elt["elements"].push(
 							{
