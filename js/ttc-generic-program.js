@@ -18,19 +18,23 @@ var program = {"program": [
 	"country": "text",
 	"dialogues": ["add-dialogue"],
 	"add-dialogue":"button",
-	"dialogue": ["name","interactions","dialogue_id"],
-	"dialogue_id": "hidden",	
+	"dialogue": ["name","interactions","dialogue-id"],
+	"dialogue-id": "hidden",	
 	"interactions":["add-interaction"],
-	"interaction":["radio-type-interaction","radio-type-schedule","interaction_id"],
-	"interaction_id":"hidden",
+	"interaction":["radio-type-schedule", "radio-type-interaction","interaction-id"],
+	"interaction-id":"hidden",
 	"add-interaction":"button",
 	"announcement": ["content"],
-	"question-answer": ["content","radio-type-reminder", "answers"],
+	"question-answer": ["content","radio-type-reminder", "radio-type-question"],
 	"radio-type-reminder":"radiobuttons",
 	"type-reminder":{"no-reminder":"No reminder","reminder":"Reminder"},
 	"reminder":["number","every"],
 	"number":"text",
 	"every":"text",
+	"radio-type-question": "radiobuttons", 
+	"type-question":{"close-question":"Close question","open-question":"Open question"},
+	"close-question": ["answers"],
+	"open-question": ["feedback"],
 	"requests-responses":["add-request-response"],
 	"add-request-response":"button",
 	"request-response":["content","responses","actions"],
@@ -192,6 +196,11 @@ function activeForm(){
 			};
 	});
 	$.each($("input[name*='type-reminder']"),function (key, elt){
+			if (!$.data(elt,'events')){	
+				$(elt).change(updateRadioButtonSubmenu);
+			};
+	});
+	$.each($("input[name*='type-question']"),function (key, elt){
 			if (!$.data(elt,'events')){	
 				$(elt).change(updateRadioButtonSubmenu);
 			};

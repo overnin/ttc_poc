@@ -2,6 +2,8 @@
 
 	include "mongodb_feature.php";
 	include "supervisor_xmlrpc.php";
+	include "test_rabbitmq.php";
+	
 	//$response=array();
 	if (!array_key_exists('action', $_GET)){
 		$response = array(
@@ -91,6 +93,57 @@
 		echo json_encode($response);
 		exit; 
 	}
+	
+	if ($_GET['action']=="start"){
+		
+		if (!array_key_exists('id', $_GET)){
+			$response = array(
+				"ok"=> false,
+				"msg"=> "No id specified"
+				);
+			echo json_encode($response);
+			exit;
+		}
+		
+		$feprogram = getFrontEndProgram($_GET['id']); //retrieve program
+		//echo "feprogram name: ". $feprogram['program']['name'];
+		saveProgram($feprogram['program']);             //save it in running programme table
+		startWorker2($feprogram['program']['name']);
+		sendMessageTo('{"action":"start","content":"'.$feprogram['program']['name'].'"}', 
+			$feprogram['program']['name'].".control");
+		
+		$response = array(
+			"ok"=> true,
+			"msg" => "The program is running."
+			);
+		echo json_encode($response);
+		exit; 
+	}
+	
+	if ($_GET['action']=="pause"){
+		
+		if (!array_key_exists('id', $_GET)){
+			$response = array(
+				"ok"=> false,
+				"msg"=> "No id specified"
+				);
+			echo json_encode($response);
+			exit;
+		}
+		
+		$feprogram = getFrontEndProgram($_GET['id']); //retrieve program
+		//echo "feprogram name: ". $feprogram['program']['name'];
+		stopWorker($feprogram['program']['name']);
+		removeWorker($feprogram['program']['name']);
+		
+		$response = array(
+			"ok"=> true,
+			"msg" => "The program ".$feprogram['program']['name']." has been stoped."
+			);
+		echo json_encode($response);
+		exit; 
+	}
+	
 	
 	$response = array(
 			"ok"=> false,

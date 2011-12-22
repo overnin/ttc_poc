@@ -78,7 +78,15 @@
 	function activateUI(){
 		$('button.delete-program').click(function(){
 			deleteProgram($(this).parent().attr('id'));
-		});	
+		});
+		$('button.start-program').click(function(){
+			startProgram($(this).parent().attr('id'));
+		});
+		$('button.pause-program').click(function(){
+			pauseProgram($(this).parent().attr('id'));
+		});
+
+		
 	}
 
 	function createNew() {
@@ -87,8 +95,15 @@
 		activeForm();	
 	}
 	
-	function startProgram(){
+	function startProgram(id){
 		$.get('ajax.php',"action=start&id="+id, function(data){
+				var response = $.parseJSON(data);
+				updateFlash(response['msg']);
+		});
+	}
+	
+	function pauseProgram(id){
+		$.get('ajax.php',"action=pause&id="+id, function(data){
 				var response = $.parseJSON(data);
 				updateFlash(response['msg']);
 		});

@@ -22,6 +22,25 @@ function getProgram(){
 	}*/	
 }
 
+function saveProgram($program){
+
+	$connection = new Mongo();
+	
+	$db = $connection->selectDB('dev');
+	
+	$oldprogram = $db->programs->findOne(array ("name" => $program['name']));
+	
+	if ($oldprogram) {
+		$id = $oldprogram["_id"]; 
+		$db->programs->update($id, array('$set'=> array('program'=> $program)));
+		return "The program ".$program['name']." has been updated";
+	}else{
+		$db->programs->insert($program);
+		return "The program ".$program['name']." has been saved";
+	}
+}
+
+
 function getLogs($program_name){
 	$connection = new Mongo();
 	
