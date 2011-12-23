@@ -2,24 +2,48 @@
 
 //require_once 'lib/Mongodloid/Connection.php';
 
-function getProgram(){
+function getPrograms(){
 	
 	$connection = new Mongo();
 	
-	//$db->setSlaveOkay(true);
 	$db = $connection->selectDB('dev');
 	
-	//$db->program->find()->getNext();
-	//echo 
-	
+
 	$cursor = $db->programs->find();
 	
-	return $cursor;
-	//var_dump(iterator_to_array($cursor));
+	return $cursor;	
+}
+
+function hasRunBefore($program_name){
+	$connection = new Mongo();
+	$db = $connection->selectDB('dev');
 	
-	/*foreach ($db->programs->find() as $program){
-		echo $program->name;	
-	}*/	
+	$oldprogram = $db->programs->findOne(array ("name" => $program_name));
+
+	if ($oldprogram) {
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function updateProgram($program){
+	
+	$connection = new Mongo();
+	
+	$db = $connection->selectDB('dev');
+	
+	$oldprogram = $db->programs->findOne(array ("name" => $program['name']));
+
+	if ($oldprogram) {
+		$id = $oldprogram["_id"]; 
+		$db->programs->update($id, array('$set'=> array('program'=> $program)));
+		return "The program ".$program['name']." has been updated.";
+	}else{
+		return "The program ".$program['name']." has NOT been updated.";
+	}
+	
+	return $cursor;	
 }
 
 function saveProgram($program){
@@ -32,11 +56,13 @@ function saveProgram($program){
 	
 	if ($oldprogram) {
 		$id = $oldprogram["_id"]; 
-		$db->programs->update($id, array('$set'=> array('program'=> $program)));
-		return "The program ".$program['name']." has been updated";
+		//echo "old prog id:".$id;
+		$db->programs->update( array("_id" => new MongoID($id)),
+			$program);
+		return "The running program ".$program['name']." has been updated";
 	}else{
 		$db->programs->insert($program);
-		return "The program ".$program['name']." has been saved";
+		return "The running program ".$program['name']." has been saved";
 	}
 }
 
@@ -182,10 +208,10 @@ function saveFrontEndProgram($program,$id=null){
 			"program"=>$program
 			);
 		$db->feprograms->update( array("_id" => new MongoID($id)),array('$set'=> array('program'=> $feprogram['program'])));
-		return "The program ".$program->name." has been updated";
+		return "The program ".$program->name." has been updated.";
 	}else{
 		if (!property_exists($program,'name')) {
-			return "Name not defined, program not saved";
+			return "Name not defined, program not saved.";
 		}
 		
 		$feprogram = array(
@@ -195,7 +221,7 @@ function saveFrontEndProgram($program,$id=null){
 			"end_date"=>""
 			);
 		$db->feprograms->insert($feprogram);
-		return "The program ".$program->name." has been saved";
+		return "The program ".$program->name." has been saved.";
 	}
 	
 	//echo "feprogram saved";

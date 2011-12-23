@@ -92,9 +92,9 @@ function sendMessageTo($msg, $to) {
 	
 	$msg_body = json_encode($arr);
 	
-	echo "sending '".$msg_body."' to '".$to."'";
+	//echo "sending '".$msg_body."' to '".$to."'";
 
-	echo "starting...";
+	//echo "starting...";
 	
 	$conn = new AMQPConnection($BROKER_HOST, $BROKER_PORT,
 				       $USER,
@@ -104,17 +104,17 @@ function sendMessageTo($msg, $to) {
 	//echo "Requesting access\n";
 	$ch->access_request('/data', false, false, true, true);
 	
-	echo "<br>Declaring exchange";
+	//echo "<br>Declaring exchange";
 	$ch->exchange_declare($EXCHANGE, 'direct', false, true, false);
-	echo "<br>Creating message\n";
+	//echo "<br>Creating message\n";
 	$msg = new AMQPMessage($msg_body, array('content_type' => 'text/plain'));
 	
-	echo "<br>Publishing message";
+	//echo "<br>Publishing message";
 	$ch->basic_publish($msg, $EXCHANGE, $QUEUE);
 	
-	echo "<br>Closing channel\n";
+	//echo "<br>Closing channel\n";
 	$ch->close();
-	echo "<br>Closing connection\n";
+	//echo "<br>Closing connection\n";
 	$conn->close();
 	return ($msg_body);
 }

@@ -63,6 +63,14 @@
 		
 		if (property_exists($program_config,'id')){
 			$msg = saveFrontEndProgram($program_config->program,$program_config->id);
+			if (hasRunBefore($program_config->program->name)==true) {
+				//Has to update the running version and notify the worker
+				$msg = $msg . "Update running worker data and send him update message.";
+				$feprogram = getFrontEndProgram($program_config->id);
+				$msg = $msg . saveProgram($feprogram['program']); 
+				sendMessageTo('{"action":"resume","content":"'.$feprogram['program']['name'].'"}', 
+					$feprogram['program']['name'].".control");
+			}
 		} else {
 			$msg = saveFrontEndProgram($program_config->program);
 		}

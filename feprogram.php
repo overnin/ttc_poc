@@ -55,8 +55,8 @@
 							html = html + "<div>Last user actions: not available</div>"
 						}
 						if ("send-log" in program) {
-							html = html + "<div>Last message send:"+program['send-log']['msg']+" at "+program['send-log']['time']+"</div>";
-							html = html + "<div>Total message send:"+program['send-log']['total']+"</div>";
+							html = html + "<div>Last message send: '"+program['send-log']['send']+"' at "+program['send-log']['time']+"</div>";
+							html = html + "<div>Total message send: "+program['send-log']['total']+"</div>";
 						} else {
 							html = html + "<div>Last message send: not available</div>"
 						} 

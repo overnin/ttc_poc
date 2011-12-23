@@ -157,7 +157,8 @@ function startWorker2($program_name){
 	
 	if(!$r->faultCode())
 	{
-		echo php_xmlrpc_decode($r->value());
+		return "Worker process has started.";
+		//echo php_xmlrpc_decode($r->value());
 	}
 	else
 	{
@@ -186,7 +187,7 @@ function removeWorker($name){
 	
 	if(!$r->faultCode())
 	{
-		return;
+		return "Worker removed";
 		//echo php_xmlrpc_decode($r->value());
 	}
 	else
@@ -213,7 +214,8 @@ function stopWorker($name){
 	
 	if(!$r->faultCode())
 	{
-		echo php_xmlrpc_decode($r->value());
+		return "Worker stoped";
+		//echo php_xmlrpc_decode($r->value());
 	}
 	else
 	{
